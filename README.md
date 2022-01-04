@@ -22,6 +22,6 @@ to check for new items and download them
 
 The script can download:
 * Ufora course content
-* Ufora notifications
+* Ufora announcements
 * Opencast paella lecture recordings
 * Zoom lecture recordings
