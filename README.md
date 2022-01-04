@@ -13,7 +13,7 @@ pip install git+https://github.com/quintenroets/school
 ## Usage
 1) Pin the courses you want to sync automatically in the Ufora web browser (click on the pin icon)
 2) replace email and password in constants.py with your own email and password
-3) Run 
+3) Run in cli
 
 ```shell
 school
