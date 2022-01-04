@@ -1,0 +1,17 @@
+# unzip
+py7zr
+
+# download ufora
+PyQt6~=6.1.0
+selenium~=3.141.0
+beautifulsoup4~=4.9.3
+# postprocessing
+unoconv
+
+#downloading
+m3u8
+requests
+tqdm
+
+superpathlib @ git+https://github.com/quintenroets/superpathlib
+libs @ git+https://github.com/quintenroets/libs

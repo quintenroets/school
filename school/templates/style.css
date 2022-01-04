@@ -1,0 +1,37 @@
+div.videocontent { 
+    width: 100%;
+    height: 100%;
+    display: flex;
+	}
+	
+div.wrapper { 
+    width: 100%;
+    height: 100%;
+	display: flex;
+    max-width: 1620;
+	margin-right: auto;
+	margin-left: auto;
+	}
+
+div.videocontentsmall { 
+	position: relative;
+	max-width: 970;
+	margin-right: auto;
+	margin-left: auto;
+	color:white;
+	}
+	
+body {
+	background-size: cover;
+	}
+	
+ .video-js {
+    font-size: 16px;
+    color: #cacaca;
+    margin-top: auto;
+	margin-bottom: auto;
+}
+
+.video-js .vjs-current-time {
+    display: block;
+}

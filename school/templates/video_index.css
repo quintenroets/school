@@ -1,0 +1,18 @@
+a:watched{
+	color: #1b59A8;
+	}
+	
+a{
+	color: #949CA5;
+	}
+	
+small{
+	font-size: 15;
+	}
+	
+body {
+	background-size: cover;
+	max-width: 750px;
+	margin-left: 20;
+	margin-top: 20px;
+	}

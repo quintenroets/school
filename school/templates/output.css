@@ -1,0 +1,31 @@
+a{
+	color: #3b79C8;
+	font-family: Times New Roman; 
+	font-size: 17px;
+	text-decoration: none
+	}
+
+body {
+	max-width: 600px;
+	margin-left: 20;
+	margin-top: 20px;
+	}
+	
+main {
+	max-width: 630px;
+	margin-left: 20;
+	}
+	
+pre {
+	margin: 0;
+	font-family: Times New Roman; 
+	font-size: 17px;
+	}
+	
+b {
+	font-size: 19px;
+	}
+	
+h1 {
+	align: center;
+	}
