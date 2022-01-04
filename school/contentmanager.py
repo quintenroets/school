@@ -19,7 +19,6 @@ class ContentManager:
         else:
             parts = {
                 "news": {"subkeys": [], "id": "Id", "sections": ["Announcements"]},
-                "bongo": {"subkeys": ["data", "termClass", "meetings"], "id": "dbId", "sections": ["Bongo"]},
                 "zoom": {"subkeys": ["result", "list"], "id": "meetingId", "sections": ["Zoom"]}
             }
             for p in parts:
@@ -66,9 +65,8 @@ class Section:
         self.coursemanager = coursemanager
         self.titles = titles
 
-        self.tree_item = not titles or titles[0] not in ["Announcements", "Bongo", "Zoom"]
+        self.tree_item = not titles or titles[0] not in ["Announcements", "Zoom"]
         self.announ = titles and titles[0] == "Announcements"
-        self.bongo = titles and titles[0] == "Bongo"
         self.zoom = titles and titles[0] == "Zoom"
         if self.zoom:
             self.titles = ["Lectures"]

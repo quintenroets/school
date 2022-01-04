@@ -45,7 +45,7 @@ class SessionManager:
             ' AppleWebKit/537.36 (KHTML, like Gecko)'
             ' Chrome/85.0.4183.83 Safari/537.36'
         )
-        # better safe than sorry, especially needed for bongo!
+        # better safe than sorry
         SessionManager.session.headers = {'User-Agent': user_agent}
         try:
             SessionManager.check_login()
