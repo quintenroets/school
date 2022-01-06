@@ -2,13 +2,12 @@
 Package especially developed for students at Ghent University
 
 Automatically download all your course materials and keep track of your progress
-developed for Linux OS
-
 ## Installation
 
 ```shell
 pip install git+https://github.com/quintenroets/school
 ```
+Developed for Linux OS
 
 ## Usage
 1) Pin the courses you want to sync automatically in the Ufora web browser (click on the pin icon)
