@@ -1,7 +1,8 @@
 # School
-Package especially developed for students at Ghent University
-
 Automatically download all your course materials and keep track of your progress
+
+For students at Ghent University or other Ufora users
+
 ## Installation
 
 ```shell
