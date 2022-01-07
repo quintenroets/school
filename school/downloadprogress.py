@@ -1,4 +1,4 @@
-from libs.opener import startfile
+from libs.cli import Cli
 
 from .widget import Widget
 
@@ -73,14 +73,14 @@ class DownloadProgress:
     def show_download(self):
         self.onClose()
 
-        files = [self.section.dest]
+        urls = [self.section.dest]
         if not self.section.announ:
-            files += [it.dest for it in self.section.items if it.dest and not it.dest.suffix == ".ipynb"]
-        if any([f.suffix == ".mp4" for f in files]):
-            files = [f for f in files if not f.suffix == ".mp4"] + [self.section.dest / "Videos.html"]
+            dests = [it.dest for it in self.section.items if it.dest]
+            if any([d.suffix == ".mp4" for d in dests]):
+                urls.append(self.section.dest / "Videos.html")
+            urls += [d for d in dests if d.suffix != ".mp4"]
 
-        for f in files:
-            startfile(f)
+        Cli.start(urls)
 
     def enable_show(self):
         self.set_progress(1)

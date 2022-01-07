@@ -19,7 +19,7 @@ class CourseManager:
         ProgressManager.add(self)
 
     def check(self):
-        elif self.part == "zoom":
+        if self.part == "zoom":
             content = ZoomApi.get_content(self.course.id)
             ProgressManager.progress.add_progress(len(self.old_content) + 1000) # set as progress when request done
         else:
