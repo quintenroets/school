@@ -101,17 +101,12 @@ class VideoManager:
     @staticmethod
     def get_duration_tag(video):
         command = f'mediainfo --Inform="Video;%Duration%" "{video}"'
-        duration = Cli.get(command)
+        milliseconds = Cli.get(command)
         # Some durations are in float format
-        duration = int(float(duration)) // 1000
+        seconds = int(float(milliseconds)) // 1000
 
-        hours = duration // 3600
-        duration = duration % 3600
-
-        minutes = duration // 60
-        duration = duration % 60
-
-        seconds = duration // 1
+        hours, seconds = divmod(seconds, 3600)
+        minutes, seconds = divmod(seconds, 60)
 
         hours_str = str(int(hours))
         minutes_str = str(minutes)
@@ -128,8 +123,7 @@ class VideoManager:
 
     @staticmethod
     def get_time_tag(video: Path):
-        time = datetime.fromtimestamp(video.mtime)
-        time = time.strftime("%d/%m/%Y - %H:%M")
+        time = datetime.fromtimestamp(video.mtime).strftime("%d/%m/%Y - %H:%M")
         tag = "&ensp;[" + time + "]"
         return tag
 

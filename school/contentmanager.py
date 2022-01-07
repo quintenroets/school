@@ -1,5 +1,6 @@
 from json import loads
 from datetime import datetime
+from dateutil import tz
 
 from .path import Path
 
@@ -108,7 +109,7 @@ class Content:
         self.order = item.get("SortOrder") + 1000 if "SortOrder" in item else 1
         if section.zoom:
             self.order = number + 5
-            self.time = datetime.strptime(item.get("startTime"), "%Y-%m-%d %H:%M:%S").timestamp() + 3600
+            self.time = datetime.strptime(item.get("startTime"), "%Y-%m-%d %H:%M:%S").timestamp() + tz.tzlocal()._std_offset.seconds
 
 
 class Item(Content):

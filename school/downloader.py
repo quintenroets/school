@@ -1,4 +1,5 @@
 from datetime import datetime
+from dateutil import tz
 import json
 import m3u8
 import requests
@@ -124,7 +125,7 @@ class Downloader:
 
         time_string = Parser.between(zoom_page, "clipStartTime: ", ",")
         if time_string:
-            item.LastModifiedDate = int(time_string[:-3]) + 3600
+            item.LastModifiedDate = int(time_string[:-3]) + tz.tzlocal()._std_offset.seconds
 
         content_list = zoom_page.split("'")
         urls = [u for u in content_list if ".mp4" in u]
@@ -191,7 +192,7 @@ class Downloader:
         recordings = [r for r in recordings if r["fileType"] == "MP4"]
         for r in recordings:
             mtime = r.get("recordingStart")
-            r["time"] = datetime.strptime(mtime, "%Y-%m-%d %H:%M:%S").timestamp() + 3600 if mtime else None
+            r["time"] = datetime.strptime(mtime, "%Y-%m-%d %H:%M:%S").timestamp() + tz.tzlocal()._std_offset.seconds if mtime else None
         recordings = sorted(recordings, key=lambda r: r["time"])
 
         extra_items = [item.__copy__() for i in range(len(recordings) - 1)]
