@@ -3,7 +3,6 @@ import threading
 
 from libs.time import set_time
 from libs.cli import Cli
-from libs.tagmanager import TagManager
 
 from .videomanager import VideoManager
 
@@ -24,7 +23,7 @@ class DownloadManager:
     @staticmethod
     def update_order(section):
         if section.dest and section.content and section.content.order:
-            TagManager.set_tags(section.dest, section.content.order)
+            section.dest.tags.set(section.content.order)
 
     @staticmethod
     def process_downloads(section):
@@ -48,7 +47,7 @@ class DownloadManager:
 
                     set_time(item.dest, item.time)
                     if item.order:
-                        TagManager.set_tags(item.dest, item.order)
+                        item.dest.tags.set(item.order)
                 else:
                     orig_name = item.dest.stem
                     count = 1
@@ -56,7 +55,7 @@ class DownloadManager:
                     while item.dest.exists():
                         set_time(item.dest, item.time)
                         if item.order:
-                            TagManager.set_tags(item.dest, item.order)
+                            item.dest.tags.set(item.order)
                         count += 1
                         item.dest = item.dest.with_stem(f"{orig_name}_view{count}")
 
@@ -83,7 +82,7 @@ class DownloadManager:
                     filename.name not in skip
                     and not filename.is_dir()
                     and not filename.is_symlink()
-                    and TagManager.has_tags(filename)
+                    and filename.tags.get()
                 ):
                     couple = (filename.name, filename)
                     to_copy.append(couple)
@@ -98,7 +97,7 @@ class DownloadManager:
             parent_content = Path.content_folder(folder)
             parents.append(parent_content)
             parent_content.mkdir(parents=True, exist_ok=True)
-            TagManager.set_tags(parent_content, 0)
+            parent_content.tags.set(0)
         return parents
 
     @staticmethod
@@ -124,8 +123,8 @@ class DownloadManager:
         folder.mkdir(parents=True, exist_ok=True)
         with ZipFile(zipfile) as zip_ref:
             zip_ref.extractall(path=folder)
-        tags = TagManager.get_tags(zipfile)
+        tags = zipfile.tags.get()
         if remove_zip:
             zipfile.unlink()
         for path in folder.iterdir():
-            TagManager.set_tags(path, tags)
+            path.tags.set(tags)
