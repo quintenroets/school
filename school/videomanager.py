@@ -28,7 +28,7 @@ class VideoManager:
     def proces_new_videos(folder: Path, videos, video_folder):
         videos_folder = folder / video_folder
         videos_folder.mkdir(parents=True, exist_ok=True)
-        videos_folder.tags.set(1)
+        videos_folder.tag = 1
 
         fileslist = [
             VideoManager.make_html_video(folder, videos_folder, video, items) for video, items in videos.items()
