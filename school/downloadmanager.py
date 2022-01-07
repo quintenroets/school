@@ -1,7 +1,6 @@
 from zipfile import ZipFile
 import threading
 
-from libs.time import set_time
 from libs.cli import Cli
 
 from .videomanager import VideoManager
@@ -17,7 +16,7 @@ class DownloadManager:
     def make_section(section: Section):
         if not section.announ:
             section.dest.mkdir(parents=True, exist_ok=True)
-        set_time(section.dest, section.content.time)
+        section.dest.time = section.content.time
         DownloadManager.update_order(section)
 
     @staticmethod
@@ -45,17 +44,17 @@ class DownloadManager:
                         item.dest.unlink()
                         item.dest = item.dest.with_suffix(".pdf")
 
-                    set_time(item.dest, item.time)
+                    item.dest.time = item.time
                     if item.order:
-                        item.dest.tags.set(item.order)
+                        item.dest.tag = item.order
                 else:
                     orig_name = item.dest.stem
                     count = 1
                     item.dest = item.dest.with_stem(f"{orig_name}_view{count}")
                     while item.dest.exists():
-                        set_time(item.dest, item.time)
+                        item.dest.time = item.time
                         if item.order:
-                            item.dest.tags.set(item.order)
+                            item.dest.tag = item.order
                         count += 1
                         item.dest = item.dest.with_stem(f"{orig_name}_view{count}")
 

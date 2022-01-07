@@ -3,9 +3,7 @@ from datetime import datetime
 import mimetypes
 import urllib
 
-from libs.time import set_time
 from libs.cli import Cli
-from libs.tagmanager import TagManager
 
 from .path import Path
 
@@ -30,7 +28,7 @@ class VideoManager:
     def proces_new_videos(folder: Path, videos, video_folder):
         videos_folder = folder / video_folder
         videos_folder.mkdir(parents=True, exist_ok=True)
-        TagManager.set_tags(videos_folder, 1)
+        videos_folder.tags.set(1)
 
         fileslist = [
             VideoManager.make_html_video(folder, videos_folder, video, items) for video, items in videos.items()
@@ -65,18 +63,14 @@ class VideoManager:
                 v = urllib.parse.quote(str(v))
                 content = content.replace(k, v)
             Path(filename_html).write(content)
-            set_time(filename_html, filename_video.mtime())
-            TagManager.set_tags(filename_html, TagManager.get_tags(filename_video))
+            filename_html.mtime = filename_video.mtime
+            filename_html.tag = filename_video.tag
 
         return filename_video, filename_html
     
     @staticmethod
     def get_order(filename: Path, use_tags=False):
-        if use_tags:
-            tags = TagManager.get_tags(filename)
-            order = tags + filename if tags else filename
-        else:
-            order = filename.mtime()
+        order = (filename.tag or "") + str(filename) if use_tags else filename.mtime
         return order
 
     @staticmethod
@@ -92,7 +86,7 @@ class VideoManager:
         content = "\n".join([VideoManager.video_tag(files) for files in fileslist])
         content = css + js + body_in + content + body_out
         Path(filename).write(content)
-        TagManager.set_tags(filename, 9999)
+        filename.tag = 9999
 
     @staticmethod
     def video_tag(files):
@@ -134,7 +128,7 @@ class VideoManager:
 
     @staticmethod
     def get_time_tag(video: Path):
-        time = datetime.fromtimestamp(video.mtime())
+        time = datetime.fromtimestamp(video.mtime)
         time = time.strftime("%d/%m/%Y - %H:%M")
         tag = "&ensp;[" + time + "]"
         return tag
