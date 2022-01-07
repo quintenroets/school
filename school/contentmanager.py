@@ -1,8 +1,7 @@
 from json import loads
-from datetime import datetime
-from dateutil import tz
 
 from .path import Path
+from . import timeparser
 
 
 class ContentManager:
@@ -109,7 +108,7 @@ class Content:
         self.order = item.get("SortOrder") + 1000 if "SortOrder" in item else 1
         if section.zoom:
             self.order = number + 5
-            self.time = datetime.strptime(item.get("startTime"), "%Y-%m-%d %H:%M:%S").timestamp() + tz.tzlocal()._std_offset.seconds
+            self.time = timeparser.parse(item.get("startTime"), "%Y-%m-%d %H:%M:%S")
 
 
 class Item(Content):

@@ -22,7 +22,7 @@ class DownloadManager:
     @staticmethod
     def update_order(section):
         if section.dest and section.content and section.content.order:
-            section.dest.tags.set(section.content.order)
+            section.dest.tag = section.content.order
 
     @staticmethod
     def process_downloads(section):
@@ -81,7 +81,7 @@ class DownloadManager:
                     filename.name not in skip
                     and not filename.is_dir()
                     and not filename.is_symlink()
-                    and filename.tags.get()
+                    and filename.tag
                 ):
                     couple = (filename.name, filename)
                     to_copy.append(couple)
@@ -96,7 +96,7 @@ class DownloadManager:
             parent_content = Path.content_folder(folder)
             parents.append(parent_content)
             parent_content.mkdir(parents=True, exist_ok=True)
-            parent_content.tags.set(0)
+            parent_content.tag = 0
         return parents
 
     @staticmethod
@@ -122,8 +122,8 @@ class DownloadManager:
         folder.mkdir(parents=True, exist_ok=True)
         with ZipFile(zipfile) as zip_ref:
             zip_ref.extractall(path=folder)
-        tags = zipfile.tags.get()
+        
+        for path in folder.iterdir():
+            path.tag = zipfile.tag
         if remove_zip:
             zipfile.unlink()
-        for path in folder.iterdir():
-            path.tags.set(tags)

@@ -1,5 +1,4 @@
 from datetime import datetime
-from dateutil import tz
 import json
 import m3u8
 import requests
@@ -9,7 +8,6 @@ import urllib
 
 from libs.downloader import Downloader as Downloaderlib
 from libs.threading import Threads
-from libs.time import to_string, utc_to_epoch
 from libs.parser import Parser
 
 from . import constants
@@ -20,6 +18,7 @@ from .sessionmanager import SessionManager
 from .zoomapi import ZoomApi
 
 from .path import Path
+from . import timeparser
 
 PARALLEL_SECTIONS = 1  # 5
 PARALLEL_DOWNLOADS = 2  # 10  # Only allow 10 parallel downloads
@@ -51,10 +50,15 @@ class Downloader:
         if item:
             html = item.html
         else:
-            announs = self.section.coursemanager.contentmanager.content
-            tags = [f"<h3><strong>{it['Title']}</strong><small>&ensp;&ensp;{to_string(it['StartDate'])}</small></h3>" \
-                    f"{it['Body']['Html']}" for it in announs]
-            html = "<br><hr>".join([t for t in tags])
+            content_list = []
+            for it in self.section.coursemanager.contentmanager.content:
+                title = it["Title"]
+                time = timeparser.parse(it['StartDate'], "%Y-%m-%dT%H:%M:%S.%fZ")
+                time_string = timeparser.to_string(time)
+                html = it['Body']['Html']
+                content_list.append(f"<h3><strong>{title}</strong><small>&ensp;&ensp;{time_string}</small></h3>{html}")
+            
+            html = "<br><hr>".join(content_list)
 
         style = f'<link href="file:///{Path.templates}/announ.css" rel="stylesheet" />'
 
@@ -125,7 +129,7 @@ class Downloader:
 
         time_string = Parser.between(zoom_page, "clipStartTime: ", ",")
         if time_string:
-            item.LastModifiedDate = int(time_string[:-3]) + tz.tzlocal()._std_offset.seconds
+            item.LastModifiedDate = timeparser.parse(time_string[:-3])
 
         content_list = zoom_page.split("'")
         urls = [u for u in content_list if ".mp4" in u]
@@ -148,8 +152,7 @@ class Downloader:
         parsed_content = r.json()
 
         time = parsed_content["search-results"]["result"]["mediapackage"]["start"]
-        time = utc_to_epoch(time, format="%Y-%m-%dT%H:%M:%SZ")
-        item.LastModifiedDate = time
+        time.LastModifiedDate = timeparser.parse(time, "%Y-%m-%dT%H:%M:%SZ")
 
         if b"COMPOSITION.mp4" in content:
             urls = ["http" + Parser.rbetween(content, b"http", b"COMPOSITION.mp4").decode() + "COMPOSIION.mp4"]
@@ -192,7 +195,7 @@ class Downloader:
         recordings = [r for r in recordings if r["fileType"] == "MP4"]
         for r in recordings:
             mtime = r.get("recordingStart")
-            r["time"] = datetime.strptime(mtime, "%Y-%m-%d %H:%M:%S").timestamp() + tz.tzlocal()._std_offset.seconds if mtime else None
+            r["time"] = timeparser.parse(mtime, "%Y-%m-%d %H:%M:%S")
         recordings = sorted(recordings, key=lambda r: r["time"])
 
         extra_items = [item.__copy__() for i in range(len(recordings) - 1)]
