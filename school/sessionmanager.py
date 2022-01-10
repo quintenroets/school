@@ -1,3 +1,4 @@
+import downloader
 import html
 import os
 import requests
@@ -18,14 +19,12 @@ class D2LApi:
         self.api_url = f"{constants.root_url}d2l/api/le/1.50/{course.id}/"
 
     def get(self, path):
-        r = SessionManager.get(self.api_url + path, stream=True)
-        assert r.status_code == 200
-        chunk_size = 10**4
-        content = b""
-        for chunk in r.iter_content(chunk_size=chunk_size):
-            ProgressManager.progress.add_progress(chunk_size)
-            content += chunk
-        return content
+        return downloader.get(
+            self.api_url + path, 
+            session=SessionManager.session, 
+            progress_callback=ProgressManager.progress.add_progress,
+            overwrite_identical_size=False
+            )[0]
 
 
 class SessionManager:

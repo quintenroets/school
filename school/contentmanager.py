@@ -1,4 +1,4 @@
-from json import loads
+import json
 
 from .path import Path
 from . import timeparser
@@ -8,8 +8,8 @@ class ContentManager:
     def __init__(self, content, content_old, part, coursemanager):
         self.content_bytes = content
 
-        self.content = loads(content)
-        self.content_old = loads(content_old or '{}')
+        self.content = json.loads(content)
+        self.content_old = json.loads(content_old or '{}')
 
         self.coursemanager = coursemanager
         self.sections = []

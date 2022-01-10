@@ -5,7 +5,7 @@ class Course:
     def __init__(self, info):
         self.name = info["name"]
         self.id = info["id"]
-        self.to_check = ["content/toc", "zoom"]
+        self.to_check = ["content/toc"]#, "zoom"]
 
 
 class CourseInfo:

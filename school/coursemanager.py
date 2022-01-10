@@ -1,5 +1,4 @@
 import json
-from datetime import datetime
 
 from .progressmanager import ProgressManager
 from .sessionmanager import D2LApi, SessionManager
@@ -27,7 +26,7 @@ class CourseManager:
             ProgressManager.progress.add_progress(1000)
             # Here progress is accumulated during request
 
-        if content != self.old_content or True:
+        if content != self.old_content:
             self.process_changes(content, self.old_content)
         else:
             UserInterface.add_check(0)
