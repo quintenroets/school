@@ -1,4 +1,5 @@
 from datetime import datetime
+import downloader
 import json
 import m3u8
 import requests
@@ -6,7 +7,6 @@ import threading
 from tqdm import tqdm
 import urllib
 
-from libs.downloader import Downloader as Downloaderlib
 from libs.threading import Threads
 from libs.parser import Parser
 
@@ -20,8 +20,8 @@ from .zoomapi import ZoomApi
 from .path import Path
 from . import timeparser
 
-PARALLEL_SECTIONS = 1  # 5
-PARALLEL_DOWNLOADS = 2  # 10  # Only allow 10 parallel downloads
+PARALLEL_SECTIONS = 5
+PARALLEL_DOWNLOADS = 10
 
 
 class Downloader:
@@ -152,7 +152,7 @@ class Downloader:
         parsed_content = r.json()
 
         time = parsed_content["search-results"]["result"]["mediapackage"]["start"]
-        time.LastModifiedDate = timeparser.parse(time, "%Y-%m-%dT%H:%M:%SZ")
+        item.LastModifiedDate = timeparser.parse(time, "%Y-%m-%dT%H:%M:%SZ")
 
         if b"COMPOSITION.mp4" in content:
             urls = ["http" + Parser.rbetween(content, b"http", b"COMPOSITION.mp4").decode() + "COMPOSIION.mp4"]
@@ -233,9 +233,9 @@ class Downloader:
                 else:
                     def callback(p):
                         self.section.downloadprogress.add_progress(0.95 * p)
-                    Downloaderlib.download(
-                        url, dest, headers=headers, session=SessionManager.session, callback=callback, **kwargs
-                    )
+                    downloader.download(
+                        url, dest, headers=headers, session=SessionManager.session, progress_callback=callback, **kwargs
+                        )
 
     def download_m3u8(self, dest, url, headers=None, **kwargs):
         if headers is None:
@@ -262,7 +262,3 @@ class Downloader:
                     self.section.downloadprogress.add_progress(0.95 / len(playlist.segments))
                     if progress.total is None:
                         progress.total = len(content) * len(playlist.segments)
-
-        if headers is None:
-            headers = {}
-        headers.update(SessionManager.session.headers)
