@@ -13,5 +13,6 @@ m3u8
 requests
 tqdm
 
-superpathlib @ git+https://github.com/quintenroets/superpathlib
+downloader @ git+https://github.com/quintenroets/downloader
 libs @ git+https://github.com/quintenroets/libs
+superpathlib @ git+https://github.com/quintenroets/superpathlib
