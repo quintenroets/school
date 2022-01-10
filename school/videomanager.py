@@ -13,7 +13,7 @@ class VideoManager:
     template_two = (Path.templates / "two_video.html").read_text()
 
     @staticmethod
-    def proces_videos(folder: Path, video_folder="Videos"):
+    def process_videos(folder: Path, video_folder="Videos"):
         videos = {}
         for filename in folder.iterdir():
             filetype = mimetypes.guess_type(filename)[0]
@@ -22,10 +22,10 @@ class VideoManager:
                 videos[key] = videos.get(key, []) + [filename]
 
         if videos:
-            VideoManager.proces_new_videos(folder, videos, video_folder)
+            VideoManager.process_new_videos(folder, videos, video_folder)
 
     @staticmethod
-    def proces_new_videos(folder: Path, videos, video_folder):
+    def process_new_videos(folder: Path, videos, video_folder):
         videos_folder = folder / video_folder
         videos_folder.mkdir(parents=True, exist_ok=True)
         videos_folder.tag = 1
@@ -45,12 +45,12 @@ class VideoManager:
             filename_html = (video.parents / videos_folder / video.name).with_suffix(".html")
         else:
             filename_video = items[0]
-            filename_html = (videos_folder / video.stem).with_suffix(".html")
+            filename_html = videos_folder / video.with_suffix(".html").name
             already_exist = filename_video.is_symlink()
 
         if already_exist: # html file already exists
             filename_video = filename_video.resolve()
-            filename_html = (filename_video.parent / "Videos" / filename_video.stem).with_suffix(".html")
+            filename_html = filename_video.parent / "Videos" / video.with_suffix(".html").name
         else:
             content = VideoManager.template if len(items) == 1 else VideoManager.template_two
             replacements = {
@@ -129,7 +129,7 @@ class VideoManager:
 
 
 def main():
-    VideoManager.proces_videos(
+    VideoManager.process_videos(
         Path.cwd()
     )
 

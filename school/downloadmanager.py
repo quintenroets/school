@@ -58,7 +58,7 @@ class DownloadManager:
                         count += 1
                         item.dest = item.dest.with_stem(f"{orig_name}_view{count}")
 
-        VideoManager.proces_videos(section.dest)
+        VideoManager.process_videos(section.dest)
         DownloadManager.copy_to_parents(section.dest)
 
     @staticmethod
@@ -68,7 +68,7 @@ class DownloadManager:
         for parent in DownloadManager.get_parents(folder):
             for file, file_full in files_to_copy:
                 DownloadManager.make_shortcut(file, file_full, parent)
-            VideoManager.proces_videos(parent)
+            VideoManager.process_videos(parent)
 
     @staticmethod
     def get_files_to_copy(folder: Path):
