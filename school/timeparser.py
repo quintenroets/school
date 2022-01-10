@@ -4,9 +4,10 @@ from dateutil import tz
 
 def parse(time, fmt=None, utc=True):
     timestamp = datetime.strptime(time, fmt) if isinstance(time, str) else datetime.from_timestamp(time)
+    """ mtime needs to be saved as gmt time(=utc)
     if utc and not timestamp.tzinfo:
         timestamp = timestamp.replace(tzinfo=tz.tzutc())
-    timestamp = timestamp.astimezone(tz.tzlocal())
+    timestamp = timestamp.astimezone(tz.tzlocal())"""
     return timestamp.timestamp()
 
         
