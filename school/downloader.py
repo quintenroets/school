@@ -152,7 +152,7 @@ class Downloader:
         parsed_content = r.json()
 
         time = parsed_content["search-results"]["result"]["mediapackage"]["start"]
-        item.LastModifiedDate = timeparser.parse(time, "%Y-%m-%dT%H:%M:%SZ")
+        item.time = timeparser.parse(time, "%Y-%m-%dT%H:%M:%SZ")
 
         if b"COMPOSITION.mp4" in content:
             urls = ["http" + Parser.rbetween(content, b"http", b"COMPOSITION.mp4").decode() + "COMPOSIION.mp4"]

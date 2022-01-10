@@ -52,7 +52,7 @@ class DownloadManager:
                     count = 1
                     item.dest = item.dest.with_stem(f"{orig_name}_view{count}")
                     while item.dest.exists():
-                        item.dest.time = item.time
+                        item.dest.mtime = item.time
                         if item.order:
                             item.dest.tag = item.order
                         count += 1
