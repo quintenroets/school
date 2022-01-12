@@ -30,6 +30,6 @@ setup(
         ]},
 )
 
-from libs.cli import Cli
+import cli
 
-Cli.install(*read("packages.txt"))
+cli.install(*read("packages.txt"))

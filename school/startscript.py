@@ -1,13 +1,13 @@
+import cli
 from sys import argv
 
 from libs.timer import Timer
-from libs.errorhandler import ErrorHandler
 
 from .progressmanager import ProgressManager
 
 
 def main():
-    with ErrorHandler(), Timer():
+    with cli.errorhandler(), Timer():
         if len(argv) == 1:
             with ProgressManager():
                 from .starter import Starter

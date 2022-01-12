@@ -1,4 +1,4 @@
-import json
+import cli
 
 from libs.cli import Cli
 from libs.gui import Gui
@@ -16,16 +16,11 @@ class Parser:
             filename: Path = Gui.ask("Choose course", filenames)
 
             if filename:
-                content = filename.read_bytes()
-                content = json.loads(content)
-
                 tempfile = filename.with_suffix(".yaml")
-                tempfile.save(content)
-                Cli.run(f"kate '{tempfile}'")
+                tempfile.content = filename.json
+                
+                cli.urlopen(tempfile)
                 input("Press enter when you are ready")
-                content = tempfile.load()
+                
+                filename.json = tempfile.content
                 tempfile.unlink()
-
-                filename.write(
-                    json.dumps(content)
-                )

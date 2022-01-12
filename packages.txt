@@ -4,5 +4,4 @@ python-pyqt6
 python-xattr
 zenity # needed for file selection
 p7zip
-kate
 kdialog

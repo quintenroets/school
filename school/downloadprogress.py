@@ -1,4 +1,5 @@
-from libs.cli import Cli
+import cli
+
 
 from .widget import Widget
 
@@ -80,7 +81,7 @@ class DownloadProgress:
                 urls.append(self.section.dest / "Videos.html")
             urls += [d for d in dests if d.suffix != ".mp4"]
 
-        Cli.start(urls)
+        cli.urlopen(urls)
 
     def enable_show(self):
         self.set_progress(1)

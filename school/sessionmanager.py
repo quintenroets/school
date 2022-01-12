@@ -1,3 +1,4 @@
+import cli
 import downloader
 import html
 import os
@@ -5,7 +6,6 @@ import requests
 import threading
 import time
 
-from libs.cli import Cli
 from libs.parser import Parser
 
 from . import constants
@@ -49,7 +49,7 @@ class SessionManager:
         try:
             SessionManager.check_login()
         except requests.RequestException:
-            Cli.run('kdialog --error "No internet" --title "School"')
+            cli.run('kdialog --title School --error "No internet"')
             os._exit(0)
             
     @staticmethod

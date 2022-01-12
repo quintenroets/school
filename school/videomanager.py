@@ -1,9 +1,8 @@
-import urllib.parse
-from datetime import datetime
+import cli
 import mimetypes
-import urllib
+import urllib.parse
 
-from libs.cli import Cli
+from datetime import datetime
 
 from .path import Path
 
@@ -100,8 +99,7 @@ class VideoManager:
 
     @staticmethod
     def get_duration_tag(video):
-        command = f'mediainfo --Inform="Video;%Duration%" "{video}"'
-        milliseconds = Cli.get(command)
+        milliseconds = cli.get(f'mediainfo --Inform="Video;%Duration%" "{video}"')
         # Some durations are in float format
         seconds = int(float(milliseconds)) // 1000
 

@@ -1,12 +1,10 @@
-from zipfile import ZipFile
+import cli
 import threading
-
-from libs.cli import Cli
-
-from .videomanager import VideoManager
+from zipfile import ZipFile
 
 from .contentmanager import Section
 from .path import Path
+from .videomanager import VideoManager
 
 
 class DownloadManager:
@@ -39,8 +37,7 @@ class DownloadManager:
                 if item.dest.exists():
                     office_extentions = [".pptx", ".doc"]
                     if item.dest.suffix in office_extentions:
-                        command = f"unoconv -f pdf '{item.dest}'"
-                        Cli.run(command)
+                        cli.run(f"unoconv -f pdf '{item.dest}'")
                         item.dest.unlink()
                         item.dest = item.dest.with_suffix(".pdf")
 
