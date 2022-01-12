@@ -31,18 +31,15 @@ class LoginManager:
 
     @staticmethod
     def set_login_cookies(browser):
-        domain = browser.current_url.replace("https://", "").split("/")[0]
-        name = domain.replace(".", "_")
-        browser_cookies = Path.cookies(name).load()
-        for cookie in browser_cookies:
+        domain = browser.domain
+        cookies = Path.cookies(browser.domain_name).content
+        for cookie in cookies:
             if domain in cookie["domain"]:
                 browser.add_cookie(cookie)
 
     @staticmethod
     def save_login_cookies(browser):
-        name = browser.current_url.replace("https://", "").split("/")[0].replace(".", "_")
-        browser_cookies = browser.get_cookies()
-        Path.cookies(name).save(browser_cookies)
+        Path.cookies(browser.domain_name).content = browser.get_cookies()
 
     @staticmethod
     def login(browser):
@@ -60,7 +57,7 @@ class LoginManager:
         inputs = {
             "i0116": constants.email,
             "i0118": constants.pw,
-            "idSIButton9": ""
+            "idSIButton9": None
         }
         authenticate_id = "idDiv_SAOTCAS_Title"
         authenticate_expired_id = "idA_SAASTO_Resend"
@@ -71,8 +68,7 @@ class LoginManager:
         while login_message not in browser.page_source:
             time.sleep(0.5)
             if "Authentication source error" in browser.page_source:
-                LoginManager.login(browser)
-                return
+                return LoginManager.login(browser)
 
             # Select first account
             if LoginManager.is_present(browser, account_id):
@@ -82,17 +78,15 @@ class LoginManager:
                     pass
 
             # input email, password, submit button
-            for id, value in inputs.items():
-                if LoginManager.is_present(browser, id):
-                    try:
-                        input_element = browser.find_element_by_id(id)
-                        if value:
-                            if not input_element.get_property("value"): # don't fill in twice
-                                input_element.send_keys(value)
-                        else:
-                            input_element.click()
-                    except (ElementNotInteractableException, StaleElementReferenceException, NoSuchElementException):
-                        pass
+            for id_, value in inputs.items():
+                try:
+                    input_element = browser.find_element_by_id(id_)
+                    if value is None:
+                        input_element.click()
+                    elif not input_element.get_property("value"): # don't fill in twice
+                        input_element.send_keys(value)
+                except (ElementNotInteractableException, StaleElementReferenceException, NoSuchElementException):
+                    pass
 
             # microsoft authenticator
             if LoginManager.is_present(browser, authenticate_id):
@@ -101,10 +95,7 @@ class LoginManager:
 
                 while LoginManager.is_present(browser, authenticate_id):
                     if LoginManager.is_present(browser, authenticate_expired_id):
-                        browser.quit()
-                        browser = Browser(headless=True)
-                        browser.get("https://login.ugent.be")
-                        LoginManager.login(browser)
+                        return LoginManager.login(browser)
 
                     time.sleep(2)
 
