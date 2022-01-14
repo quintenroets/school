@@ -15,5 +15,6 @@ tqdm
 
 cli @ git+https://github.com/quintenroets/cli
 downloader @ git+https://github.com/quintenroets/downloader
+gui @ git+https://github.com/quintenroets/gui
 libs @ git+https://github.com/quintenroets/libs
 superpathlib @ git+https://github.com/quintenroets/superpathlib
