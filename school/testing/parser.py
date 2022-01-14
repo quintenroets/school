@@ -16,11 +16,8 @@ class Parser:
             filename: Path = Gui.ask("Choose course", filenames)
 
             if filename:
-                tempfile = filename.with_suffix(".yaml")
-                tempfile.content = filename.json
-                
-                cli.urlopen(tempfile)
-                input("Press enter when you are ready")
-                
-                filename.json = tempfile.content
-                tempfile.unlink()
+                with filename.with_suffix(".yaml") as tempfile:
+                    tempfile.content = filename.json
+                    cli.urlopen(tempfile)
+                    input("Press enter when you are ready")
+                    filename.json = tempfile.content
