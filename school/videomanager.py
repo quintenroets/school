@@ -99,7 +99,7 @@ class VideoManager:
 
     @staticmethod
     def get_duration_tag(video):
-        milliseconds = cli.get(f'mediainfo --Inform="Video;%Duration%" "{video}"')
+        milliseconds = cli.get(f'mediainfo --Inform="Video;%Duration%"', video)
         # Some durations are in float format
         seconds = int(float(milliseconds)) // 1000
 

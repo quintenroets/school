@@ -35,11 +35,11 @@ class DownloadManager:
         for item in section.items:
             if item.dest:
                 if item.dest.exists():
-                    office_extentions = [".pptx", ".doc"]
+                    office_extentions = ['.pptx', '.doc']
                     if item.dest.suffix in office_extentions:
-                        cli.run(f"unoconv -f pdf '{item.dest}'")
+                        cli.run('unoconv -f pdf', item.dest)
                         item.dest.unlink()
-                        item.dest = item.dest.with_suffix(".pdf")
+                        item.dest = item.dest.with_suffix('.pdf')
 
                     item.dest.time = item.time
                     if item.order:
