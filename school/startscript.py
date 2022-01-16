@@ -1,9 +1,9 @@
 import sys
 import tbhandler
 
-tbhandler.install()
-
 from .progressmanager import ProgressManager
+
+tbhandler.install()
 
 
 def main():
