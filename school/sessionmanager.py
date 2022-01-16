@@ -112,13 +112,13 @@ class SessionManager:
     @staticmethod
     def post_form(form):
         form = Parser.between(form, b'<form', b'form>')
-        post_url = Parser.between(form, b'action='', b''').decode()
+        post_url = Parser.between(form, b'action="', b'"').decode()
 
         data = {}
         while b'input' in form:
             form = form[form.find(b'input') + 1:]
-            name = html.unescape(Parser.between(form, b'name='', b''').decode())
-            value = html.unescape(Parser.between(form, b'value='', b''').decode())
+            name = html.unescape(Parser.between(form, b'name="', b'"').decode())
+            value = html.unescape(Parser.between(form, b'value="', b'"').decode())
             data[name] = value
 
         return SessionManager.session.post(post_url, data=data).content, post_url

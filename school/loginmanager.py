@@ -64,7 +64,7 @@ class LoginManager:
         authenticate_id = 'idDiv_SAOTCAS_Title'
         authenticate_expired_id = 'idA_SAASTO_Resend'
         account_id = 'tilesHolder'
-        account_x_path = '//*[@id='tilesHolder']/div[1]/div'
+        account_x_path = '//*[@id="tilesHolder"]/div[1]/div'
         authenticated = False
 
         while login_message not in browser.page_source:
