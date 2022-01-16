@@ -23,7 +23,7 @@ class D2LApi:
             self.api_url + path, 
             session=SessionManager.session, 
             progress_callback=ProgressManager.progress.add_progress,
-            overwrite_identical_size=False
+            skip_same_size=True
             )[0]
 
 
