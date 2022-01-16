@@ -1,7 +1,7 @@
 from .widgetui import WidgetUI
 
 class Widget(WidgetUI):
-    def __init__(self, message=""):
+    def __init__(self, message=''):
         super().__init__(message=message)
         self.onCancel = None
         self.onOpen = None

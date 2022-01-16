@@ -3,7 +3,7 @@ import os
 from PyQt6 import QtWidgets
 from PyQt6.QtCore import Qt
 
-os.environ["QT_LOGGING_RULES"] = "*.debug=false;qt.qpa.*=false" # disable annoying warnings
+os.environ['QT_LOGGING_RULES'] = '*.debug=false;qt.qpa.*=false' # disable annoying warnings
 
 MARGIN = 10
 TEXT_HEIGHT = 174
@@ -12,7 +12,7 @@ WIDTH = 370
 PROGRESS_HEIGHT = 14
 
 class WidgetUI(QtWidgets.QDialog):
-    def __init__(self, message=""):
+    def __init__(self, message=''):
         super().__init__()
         self.initUI(message)
         self.onCancel = None
@@ -28,7 +28,7 @@ class WidgetUI(QtWidgets.QDialog):
         scroll.setWidgetResizable(True)
 
         vbox = QtWidgets.QVBoxLayout(scroll)
-        for m in message.split("\n"):
+        for m in message.split('\n'):
             vbox.addWidget(QtWidgets.QLabel(m))
 
         scrollwidget = QtWidgets.QWidget(self)
@@ -40,13 +40,13 @@ class WidgetUI(QtWidgets.QDialog):
         progress.setFixedWidth(WIDTH - 2 * MARGIN)
         progress.setFixedHeight(PROGRESS_HEIGHT)
 
-        cancel = QtWidgets.QPushButton("Cancel", self)
+        cancel = QtWidgets.QPushButton('Cancel', self)
         cancel.move(MARGIN, TEXT_HEIGHT + 3 * MARGIN + PROGRESS_HEIGHT)
 
-        open = QtWidgets.QPushButton("Open after download", self)
+        open = QtWidgets.QPushButton('Open after download', self)
         open.move(MARGIN + 100, TEXT_HEIGHT + 3 * MARGIN + PROGRESS_HEIGHT)
 
-        close = QtWidgets.QPushButton("OK", self)
+        close = QtWidgets.QPushButton('OK', self)
         close.move(MARGIN + 250, TEXT_HEIGHT + 3 * MARGIN + PROGRESS_HEIGHT)
 
         self.setWindowTitle('School')
