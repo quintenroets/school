@@ -47,13 +47,13 @@ class DownloadManager:
                 else:
                     orig_name = item.dest.stem
                     count = 1
-                    item.dest = item.dest.with_stem(f"{orig_name}_view{count}")
+                    item.dest = item.dest.with_stem(f'{orig_name}_view{count}')
                     while item.dest.exists():
                         item.dest.mtime = item.time
                         if item.order:
                             item.dest.tag = item.order
                         count += 1
-                        item.dest = item.dest.with_stem(f"{orig_name}_view{count}")
+                        item.dest = item.dest.with_stem(f'{orig_name}_view{count}')
 
         VideoManager.process_videos(section.dest)
         DownloadManager.copy_to_parents(section.dest)
@@ -69,7 +69,7 @@ class DownloadManager:
 
     @staticmethod
     def get_files_to_copy(folder: Path):
-        skip = ["Videos.html", "Info.html"]
+        skip = ['Videos.html', 'Info.html']
 
         to_copy = []
         if folder.exists():
@@ -111,7 +111,7 @@ class DownloadManager:
     def extract_all_zips(source: Path, dest: Path):
         if source.exists():
             for path in source.iterdir():
-                if path.suffix == ".zip":
+                if path.suffix == '.zip':
                     DownloadManager.extract_zip(path, dest)
 
     @staticmethod

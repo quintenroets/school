@@ -1,7 +1,9 @@
 import json
 import time
-from selenium.common.exceptions import NoSuchElementException, ElementNotInteractableException, StaleElementReferenceException
+
 from http.cookies import SimpleCookie
+from retry import retry
+from selenium.common.exceptions import NoSuchElementException, ElementNotInteractableException, StaleElementReferenceException
 
 from libs.browser import Browser
 from libs.parser import Parser
@@ -15,18 +17,18 @@ class LoginManager:
     @staticmethod
     def login_to_url(url, callback=None):
         with Browser(logging=True) as browser:
-            browser.get("https://login.ugent.be")
+            browser.get('https://login.ugent.be')
             LoginManager.set_login_cookies(browser)
             LoginManager.login(browser)
 
-            if url.startswith("/"):
-                url = "https://login.ugent.be" + url
+            if url.startswith('/'):
+                url = 'https://login.ugent.be' + url
                 
             browser.get(url)
             if callback:
                 callback(browser)
                             
-            cookies = {c["name"]: c["value"] for c in browser.get_cookies()}
+            cookies = {c['name']: c['value'] for c in browser.get_cookies()}
             return cookies
 
     @staticmethod
@@ -34,7 +36,7 @@ class LoginManager:
         domain = browser.domain
         cookies = Path.cookies(browser.domain_name).content
         for cookie in cookies:
-            if domain in cookie["domain"]:
+            if domain in cookie['domain']:
                 browser.add_cookie(cookie)
 
     @staticmethod
@@ -44,30 +46,30 @@ class LoginManager:
     @staticmethod
     def login(browser):
         # go to login page
-        browser.get("https://login.ugent.be/login?&authMethod=password")
+        browser.get('https://login.ugent.be/login?&authMethod=password')
 
         LoginManager.set_login_cookies(browser)
-        microsoft_cookies = Path.cookies("microsoft").load()
+        microsoft_cookies = Path.cookies('microsoft').load()
         for k, v in microsoft_cookies.items():
-            browser.add_cookie({"name": k, "value": v})
+            browser.add_cookie({'name': k, 'value': v})
 
-        browser.get("https://login.ugent.be/login?&authMethod=password")
+        browser.get('https://login.ugent.be/login?&authMethod=password')
 
-        login_message = "Log In Successful"
+        login_message = 'Log In Successful'
         inputs = {
-            "i0116": constants.email,
-            "i0118": constants.pw,
-            "idSIButton9": None
+            'i0116': constants.email,
+            'i0118': constants.pw,
+            'idSIButton9': None
         }
-        authenticate_id = "idDiv_SAOTCAS_Title"
-        authenticate_expired_id = "idA_SAASTO_Resend"
-        account_id = "tilesHolder"
-        account_x_path = '//*[@id="tilesHolder"]/div[1]/div'
+        authenticate_id = 'idDiv_SAOTCAS_Title'
+        authenticate_expired_id = 'idA_SAASTO_Resend'
+        account_id = 'tilesHolder'
+        account_x_path = '//*[@id='tilesHolder']/div[1]/div'
         authenticated = False
 
         while login_message not in browser.page_source:
             time.sleep(0.5)
-            if "Authentication source error" in browser.page_source:
+            if 'Authentication source error' in browser.page_source:
                 return LoginManager.login(browser)
 
             # Select first account
@@ -83,14 +85,14 @@ class LoginManager:
                     input_element = browser.find_element_by_id(id_)
                     if value is None:
                         input_element.click()
-                    elif not input_element.get_property("value"): # don't fill in twice
+                    elif not input_element.get_property('value'): # don't fill in twice
                         input_element.send_keys(value)
                 except (ElementNotInteractableException, StaleElementReferenceException, NoSuchElementException):
                     pass
 
             # microsoft authenticator
             if LoginManager.is_present(browser, authenticate_id):
-                ProgressManager.progress.add_message("Awaiting authenticator")
+                ProgressManager.progress.add_message('Awaiting authenticator')
                 authenticated = True
 
                 while LoginManager.is_present(browser, authenticate_id):
@@ -105,26 +107,26 @@ class LoginManager:
         LoginManager.save_login_cookies(browser)
 
         if authenticated:
-            cookies = LoginManager.get_cookies(browser, ".login.microsoftonline.com")
-            Path.cookies("microsoft").save(cookies)
+            cookies = LoginManager.get_cookies(browser, '.login.microsoftonline.com')
+            Path.cookies('microsoft').save(cookies)
 
     @staticmethod
     def get_cookies(browser, url):
-        logs = browser.get_log("performance")
+        logs = browser.get_log('performance')
         cookies_info = [
             json.loads(
-                l["message"]
-            )["message"]
-                .get("params",{})
-                .get("headers", {})
-                .get("Set-Cookie", {})
-            for l in logs if "Received" in l["message"]
+                l['message']
+            )['message']
+                .get('params',{})
+                .get('headers', {})
+                .get('Set-Cookie', {})
+            for l in logs if 'Received' in l['message']
         ]
 
         cookies = {}
         for info in cookies_info:
             if info:
-                domain = Parser.between(info, 'domain=', ";")
+                domain = Parser.between(info, 'domain=', ';')
                 if domain == url:
                     cookie = SimpleCookie()
                     cookie.load(info)
@@ -138,19 +140,15 @@ class LoginManager:
     def is_present(browser, id):
         try:
             browser.find_element_by_id(id)
-            return True
         except NoSuchElementException:
-            return False
+            present = False
+        else:
+            present = True
+        return present
 
     @staticmethod
+    @retry(Exception, delay=0.2)
     # used for callbacks
     def click_and_wait(driver, id_click, id_wait):
-        while True:
-            try:
-                driver.find_element_by_id(id_click).click()
-                try:
-                    driver.find_element_by_id(id_wait)
-                except:
-                    return
-            except:
-                time.sleep(0.2)
+        driver.find_element_by_id(id_click).click()
+        assert not LoginManager.is_present(id_click)
