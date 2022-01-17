@@ -1,4 +1,4 @@
-from libs.threading import Threads
+from tbhandler.threading import Threads
 
 from .courseinfo import CourseInfo
 from .coursemanager import CourseManager

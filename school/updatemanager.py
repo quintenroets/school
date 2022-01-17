@@ -1,4 +1,4 @@
-from libs.threading import Threads
+from tbhandler.threading import Threads
 
 from . import constants
 from .downloader import Downloader

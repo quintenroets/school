@@ -3,11 +3,10 @@ import downloader
 import json
 import m3u8
 import requests
-import threading
+import tbhandler.threading as threading
 from tqdm import tqdm
 import urllib
 
-from libs.threading import Threads
 from libs.parser import Parser
 
 from . import constants
@@ -42,7 +41,7 @@ class Downloader:
             self.download_announ()
         else:
             self.section.downloadprogress.add_amount(len(self.section.items))
-            Threads(self.download_item, self.section.items).join()
+            threading.Threads(self.download_item, self.section.items).join()
 
         DownloadManager.process_downloads(self.section)
 
@@ -180,7 +179,7 @@ class Downloader:
         else:
             dests = [item.dest.with_stem(item.dest.stem + f"_view{i+1}") for i in range(len(urls))]
             self.section.downloadprogress.amount += len(urls) - 1
-            Threads(self.download_chunked, dests, urls, **kwargs).join()
+            threading.Threads(self.download_chunked, dests, urls, **kwargs).join()
 
     def download_zoom_api(self, item):
 
