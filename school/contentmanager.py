@@ -78,7 +78,7 @@ class Section:
 
         self.items = [Item(it, len(items) - i, self) for i, it in enumerate(items)]
         self.content = Content(content, 1, self) if content else self.items[0]
-        self.time = content.get('LastModifiedDate') if content else None
+        self.time = content and content.get('LastModifiedDate') and timeparser.parse(content['LastModifiedDate'], '')
         self.changed = any([i.changed for i in self.items])
         
         if content and (html:= content.get('Description', {}).get('Html')):

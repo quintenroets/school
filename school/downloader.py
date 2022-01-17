@@ -4,7 +4,6 @@ import json
 import m3u8
 import requests
 import tbhandler.threading as threading
-from tqdm import tqdm
 import urllib
 
 from libs.parser import Parser
@@ -21,7 +20,6 @@ from . import timeparser
 
 PARALLEL_SECTIONS = 5
 PARALLEL_DOWNLOADS = 10
-
 
 class Downloader:
     section_semaphore = threading.Semaphore(PARALLEL_SECTIONS)
@@ -52,7 +50,7 @@ class Downloader:
             content_list = []
             for it in self.section.coursemanager.contentmanager.content:
                 title = it["Title"]
-                time = timeparser.parse(it['StartDate'], "%Y-%m-%dT%H:%M:%S.%fZ")
+                time = timeparser.parse(it['StartDate'])
                 time_string = timeparser.to_string(time)
                 html = it['Body']['Html']
                 content_list.append(f"<h3><strong>{title}</strong><small>&ensp;&ensp;{time_string}</small></h3>{html}")
@@ -128,7 +126,7 @@ class Downloader:
 
         time_string = Parser.between(zoom_page, "clipStartTime: ", ",")
         if time_string:
-            item.LastModifiedDate = timeparser.parse(time_string[:-3])
+            item.LastModifiedDate = timeparser.parse(int(time_string[:-3]))
 
         content_list = zoom_page.split("'")
         urls = [u for u in content_list if ".mp4" in u]
@@ -215,10 +213,6 @@ class Downloader:
     def download_stream(self, item, url, headers=None, **kwargs):
         self.download_chunked(item.dest, url, headers, **kwargs)
 
-        if item.dest.suffix == ".zip":
-            item.dest = item.dest.with_suffix("")
-            DownloadManager.extract_zip(item.dest.with_suffix(".zip"), item.dest, remove_zip=True)
-
         if item.dest.suffix == ".html":
             item.html = item.dest.read_text()
             self.download_announ(item)
@@ -227,37 +221,30 @@ class Downloader:
         dest = Path(dest)
         if constants.overwrite_downloads or not dest.exists():
             with Downloader.semaphore:
+                def callback(p):
+                    self.section.downloadprogress.add_progress(0.95 * p)
                 if url.endswith(".m3u8"):
-                    self.download_m3u8(dest, url, headers=headers, **kwargs)
+                    self.download_m3u8(dest, url, headers=headers, callback=callback, **kwargs)
                 else:
-                    def callback(p):
-                        self.section.downloadprogress.add_progress(0.95 * p)
                     downloader.download(
                         url, dest, headers=headers, session=SessionManager.session, progress_callback=callback, **kwargs
                         )
 
-    def download_m3u8(self, dest, url, headers=None, **kwargs):
-        if headers is None:
-            headers = {}
+    def download_m3u8(self, dest, url, headers=None, callback=None, **kwargs):
+        headers = headers or {}
         playlist = m3u8.load(url, headers=headers)
         playlist = m3u8.load(playlist.playlists[0].absolute_uri, headers=headers)
-
-        progress = tqdm(
-            desc=f"Downloading {dest.name}",
-            unit="B",
-            unit_scale=True,
-            leave=False,
-            unit_divisor=1024,
-            dynamic_ncols=True,
-            bar_format='{l_bar}{bar}| {n_fmt}B/{total_fmt}B [{elapsed}<{remaining}, ' '{rate_fmt}{postfix}]'
-        )
+        
+        from downloader.progress import UIProgress
+        
+        progress = UIProgress(dest.name)
 
         with progress:
             with dest.open("wb") as fp:
                 for segment in playlist.segments:
                     content = SessionManager.session.get(segment.absolute_uri, headers=headers).content
-                    progress.update(len(content))
-                    fp.write(content)
-                    self.section.downloadprogress.add_progress(0.95 / len(playlist.segments))
                     if progress.total is None:
-                        progress.total = len(content) * len(playlist.segments)
+                        progress.update(total=len(content) * len(playlist.segments))
+                    progress.advance(len(content))
+                    fp.write(content)
+                    callback(1 / len(playlist.segments))

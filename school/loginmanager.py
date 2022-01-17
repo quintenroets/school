@@ -147,8 +147,8 @@ class LoginManager:
         return present
 
     @staticmethod
-    @retry(Exception, delay=0.2)
+    @retry(AssertionError, delay=0.2)
     # used for callbacks
     def click_and_wait(driver, id_click, id_wait):
         driver.find_element_by_id(id_click).click()
-        assert not LoginManager.is_present(id_click)
+        assert not LoginManager.is_present(driver, id_click)

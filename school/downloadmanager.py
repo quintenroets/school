@@ -5,6 +5,7 @@ from zipfile import ZipFile
 from .contentmanager import Section
 from .path import Path
 from .videomanager import VideoManager
+from . import timeparser
 
 
 class DownloadManager:
@@ -27,12 +28,15 @@ class DownloadManager:
         DownloadManager.make_section(section)
 
         if not section.announ:
-            DownloadManager.process_content_downloads(section)
+            with DownloadManager.mutex:
+                DownloadManager.process_content_downloads(section)
 
     @staticmethod
     def process_content_downloads(section: Section):
         # first set tags for correct order
         for item in section.items:
+            if isinstance(item.time, str):
+                item.time = timeparser.parse(item.time)
             if item.dest:
                 if item.dest.exists():
                     office_extentions = ['.pptx', '.doc']
@@ -54,6 +58,10 @@ class DownloadManager:
                             item.dest.tag = item.order
                         count += 1
                         item.dest = item.dest.with_stem(f'{orig_name}_view{count}')
+
+                if item.dest.suffix == ".zip":
+                    item.dest = item.dest.with_suffix("")
+                    DownloadManager.extract_zip(item.dest.with_suffix(".zip"), item.dest, remove_zip=True)
 
         VideoManager.process_videos(section.dest)
         DownloadManager.copy_to_parents(section.dest)
@@ -99,13 +107,12 @@ class DownloadManager:
     @staticmethod
     def make_shortcut(file, target, folder: Path):
         shortcut_name = folder / file
-        with DownloadManager.mutex:
-            if shortcut_name.exists():
-                shortcut_name.unlink()
-            try:
-                shortcut_name.symlink_to(target)
-            except FileExistsError:
-                pass
+        if shortcut_name.exists():
+            shortcut_name.unlink()
+        try:
+            shortcut_name.symlink_to(target)
+        except FileExistsError:
+            pass
 
     @staticmethod
     def extract_all_zips(source: Path, dest: Path):
