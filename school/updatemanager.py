@@ -1,4 +1,4 @@
-from tbhandler.threading import Threads
+from libs.threading import Threads
 
 from . import constants
 from .downloader import Downloader
@@ -15,7 +15,7 @@ class UpdateManager:
         downloaders = [Downloader(s).download_section for s in contentmanager.new_topic_sections]
 
         UserInterface.add_check(len(downloaders))
-        downloaders = Threads(downloaders)
+        downloaders = Threads(downloaders).start()
 
         for section in contentmanager.sections:
             if section.changed and section.only_subfolders:

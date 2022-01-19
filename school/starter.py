@@ -1,4 +1,4 @@
-from tbhandler.threading import Threads
+from libs.threading import Threads
 
 from .courseinfo import CourseInfo
 from .coursemanager import CourseManager
@@ -13,11 +13,11 @@ class Starter:
         courses = CourseInfo.get_courses()
         coursemanagers = [CourseManager(c, part) for c in courses for part in c.to_check]
 
-        content_threads = Threads([c.check for c in coursemanagers])
+        content_threads = Threads([c.check for c in coursemanagers]).start()
         if CourseManager.check_notifications():
             extra_coursemanagers = [CourseManager(c, 'news/') for c in courses]
             coursemanagers += extra_coursemanagers
-            extra_content_threads = Threads([c.check for c in extra_coursemanagers])
+            extra_content_threads = Threads([c.check for c in extra_coursemanagers]).start()
 
         UserInterface.show_progres(len(coursemanagers))
 
