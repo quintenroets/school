@@ -3,6 +3,14 @@ from plib import Path as BasePath
 root = BasePath(__file__).parent
 
 
+class BasePath(BasePath):
+    def subpath(self, *names):
+        path = self
+        for name in names:
+            path = path / name
+        return path
+
+
 class Path(BasePath):
     templates = root / 'templates'
 
