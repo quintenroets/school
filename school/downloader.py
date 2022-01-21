@@ -131,7 +131,7 @@ class Downloader:
             item.dest = None
             return
 
-        match = re.search('clipStartTime: (.*),' zoom_page)
+        match = re.search('clipStartTime: (.*),', zoom_page)
         if match:
             mtime = int(match.group(1)[:-3])
             item.LastModifiedDate = timeparser.parse(mtime)
