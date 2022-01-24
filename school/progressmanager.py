@@ -1,19 +1,20 @@
-import time
 import threading
+import time
 
 from libs.progressbar import ProgressBar
 
 
 class Progress(ProgressBar):
-    def __init__(self, message='Checking for new items'):
-        super(Progress, self).__init__(title='School', message=message, show_progress_message=False)
+    def __init__(self, message="Checking for new items"):
+        super(Progress, self).__init__(
+            title="School", message=message, show_progress_message=False
+        )
         self.messages = [message]
         self.auto_max = 0.0
         self.auto_add_value = 0.001
 
         self.do_auto_add = True
         self.auto_progress = 0
-
 
     def __enter__(self):
         super(Progress, self).__enter__()
@@ -64,4 +65,6 @@ class ProgressManager:
 
     @staticmethod
     def add(coursemanager):
-        ProgressManager.progress.amount += len(coursemanager.old_content) + 10000 # extra constant delay
+        ProgressManager.progress.amount += (
+            len(coursemanager.old_content) + 10000
+        )  # extra constant delay

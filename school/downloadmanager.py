@@ -1,11 +1,12 @@
-import cli
 import threading
 from zipfile import ZipFile
 
+import cli
+
+from . import timeparser
 from .contentmanager import Section
 from .path import Path
 from .videomanager import VideoManager
-from . import timeparser
 
 
 class DownloadManager:
@@ -39,11 +40,11 @@ class DownloadManager:
                 item.time = timeparser.parse(item.time)
             if item.dest:
                 if item.dest.exists():
-                    office_extentions = ['.pptx', '.doc']
+                    office_extentions = [".pptx", ".doc"]
                     if item.dest.suffix in office_extentions:
-                        cli.run('unoconv -f pdf', item.dest)
+                        cli.run("unoconv -f pdf", item.dest)
                         item.dest.unlink()
-                        item.dest = item.dest.with_suffix('.pdf')
+                        item.dest = item.dest.with_suffix(".pdf")
 
                     item.dest.time = item.time
                     if item.order:
@@ -51,17 +52,19 @@ class DownloadManager:
                 else:
                     orig_name = item.dest.stem
                     count = 1
-                    item.dest = item.dest.with_stem(f'{orig_name}_view{count}')
+                    item.dest = item.dest.with_stem(f"{orig_name}_view{count}")
                     while item.dest.exists():
                         item.dest.mtime = item.time
                         if item.order:
                             item.dest.tag = item.order
                         count += 1
-                        item.dest = item.dest.with_stem(f'{orig_name}_view{count}')
+                        item.dest = item.dest.with_stem(f"{orig_name}_view{count}")
 
                 if item.dest.suffix == ".zip":
                     item.dest = item.dest.with_suffix("")
-                    DownloadManager.extract_zip(item.dest.with_suffix(".zip"), item.dest, remove_zip=True)
+                    DownloadManager.extract_zip(
+                        item.dest.with_suffix(".zip"), item.dest, remove_zip=True
+                    )
 
         VideoManager.process_videos(section.dest)
         DownloadManager.copy_to_parents(section.dest)
@@ -77,7 +80,7 @@ class DownloadManager:
 
     @staticmethod
     def get_files_to_copy(folder: Path):
-        skip = ['Videos.html', 'Info.html']
+        skip = ["Videos.html", "Info.html"]
 
         to_copy = []
         if folder.exists():
@@ -118,7 +121,7 @@ class DownloadManager:
     def extract_all_zips(source: Path, dest: Path):
         if source.exists():
             for path in source.iterdir():
-                if path.suffix == '.zip':
+                if path.suffix == ".zip":
                     DownloadManager.extract_zip(path, dest)
 
     @staticmethod
@@ -126,7 +129,7 @@ class DownloadManager:
         folder.mkdir(parents=True, exist_ok=True)
         with ZipFile(zipfile) as zip_ref:
             zip_ref.extractall(path=folder)
-        
+
         for path in folder.iterdir():
             path.tag = zipfile.tag
         if remove_zip:

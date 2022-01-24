@@ -1,6 +1,5 @@
 import cli
 
-
 from .widget import Widget
 
 
@@ -16,6 +15,7 @@ class DownloadProgress:
 
     def request_widget(self):
         from .userinterface import UserInterface
+
         UserInterface.request_widget(self)
 
     def grant_widget(self):
@@ -65,10 +65,14 @@ class DownloadProgress:
         self.set_progress()
 
     def make_message(self, section):
-        arrow = u'\u2B9E '
-        title = [section.coursemanager.course.name] + [i * '   ' + arrow + part for i, part in enumerate(section.titles)]
-        content = [s.title + ' (updated)' if s.updated else s.title for s in section.items]
-        message = '\n'.join(title + ['']  + content)
+        arrow = u"\u2B9E "
+        title = [section.coursemanager.course.name] + [
+            i * "   " + arrow + part for i, part in enumerate(section.titles)
+        ]
+        content = [
+            s.title + " (updated)" if s.updated else s.title for s in section.items
+        ]
+        message = "\n".join(title + [""] + content)
         return message
 
     def show_download(self):
@@ -77,9 +81,9 @@ class DownloadProgress:
         urls = [self.section.dest]
         if not self.section.announ:
             dests = [it.dest for it in self.section.items if it.dest]
-            if any([d.suffix == '.mp4' for d in dests]):
-                urls.append(self.section.dest / 'Videos.html')
-            urls += [d for d in dests if d.suffix != '.mp4']
+            if any([d.suffix == ".mp4" for d in dests]):
+                urls.append(self.section.dest / "Videos.html")
+            urls += [d for d in dests if d.suffix != ".mp4"]
 
         cli.urlopen(urls)
 

@@ -1,5 +1,6 @@
-from bs4 import BeautifulSoup
 from datetime import datetime
+
+from bs4 import BeautifulSoup
 
 from .path import Path
 
@@ -16,15 +17,26 @@ class OutputWriter:
     @staticmethod
     def get_output_file():
         timestamp = str(datetime.now())
-        timestamp = timestamp[:timestamp.find(".")]
+        timestamp = timestamp[: timestamp.find(".")]
         filename = Path.assets / "output" / f"{timestamp}.html"
         return filename
 
     @staticmethod
     def make_output(sections):
-        header = f'<link href="file:///{Path.templates}/output.css" rel="stylesheet"/>\n'
-        sections_content = "\n".join([OutputWriter.make_section_output(s) for s in sections])
-        return header + "<main><h1>" + "New items" + "</h1><hr>" + sections_content + "</main>"
+        header = (
+            f'<link href="file:///{Path.templates}/output.css" rel="stylesheet"/>\n'
+        )
+        sections_content = "\n".join(
+            [OutputWriter.make_section_output(s) for s in sections]
+        )
+        return (
+            header
+            + "<main><h1>"
+            + "New items"
+            + "</h1><hr>"
+            + sections_content
+            + "</main>"
+        )
 
     @staticmethod
     def make_section_output(section):
@@ -36,7 +48,9 @@ class OutputWriter:
     @staticmethod
     def get_path_string(path):
         path_string = "<b>" + path[0] + "</b>" if path else ""
-        path_string += "".join([f"<br>{' ' * 5 * i}&#x2B9E;{line}" for i, line in enumerate(path[1:])])
+        path_string += "".join(
+            [f"<br>{' ' * 5 * i}&#x2B9E;{line}" for i, line in enumerate(path[1:])]
+        )
         return "<pre>" + path_string + "</pre><br>"
 
     @staticmethod
@@ -60,9 +74,9 @@ class OutputWriter:
         attributes = {
             "style": "color: black;",
             "target": "_blanck",
-            "href": item.dest if item.dest and item.dest.exists() else dest
-            }
-        
+            "href": item.dest if item.dest and item.dest.exists() else dest,
+        }
+
         tag_item = OutputWriter.make_tag("a")
         tag_item.string = item.title
         for k, v in attributes.items():

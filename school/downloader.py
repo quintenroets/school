@@ -1,23 +1,22 @@
-from datetime import datetime
-import downloader
 import json
-import m3u8
 import re
-import requests
 import threading
 import urllib
+from datetime import datetime
 
+import m3u8
+import requests
+
+import downloader
 from libs.threading import Threads
 
-from . import constants
+from . import constants, timeparser
 from .contentmanager import Item, Section
 from .downloadmanager import DownloadManager
 from .downloadprogress import DownloadProgress
+from .path import Path
 from .sessionmanager import SessionManager
 from .zoomapi import ZoomApi
-
-from .path import Path
-from . import timeparser
 
 PARALLEL_SECTIONS = 5
 PARALLEL_DOWNLOADS = 10
@@ -131,7 +130,7 @@ class Downloader:
             item.dest = None
             return
 
-        match = re.search('clipStartTime: (.*),', zoom_page)
+        match = re.search("clipStartTime: (.*),", zoom_page)
         if match:
             mtime = int(match.group(1)[:-3])
             item.LastModifiedDate = timeparser.parse(mtime)
@@ -148,17 +147,22 @@ class Downloader:
         if base_url is None:
             base_url = b"https://opencast.ugent.be"
 
-        video_id = re.search(b'custom_tool" value="(.*)"', content).group(1).decode().split('/')[-1]
+        video_id = (
+            re.search(b'custom_tool" value="(.*)"', content)
+            .group(1)
+            .decode()
+            .split("/")[-1]
+        )
         SessionManager.post_form(content)  # log in to paella
 
         url = f"{base_url.decode()}/search/episode.json?id=" + video_id
         response = SessionManager.get(url)
         parsed_content = response.json()
 
-        time = parsed_content['search-results']['result']['mediapackage']['start']
+        time = parsed_content["search-results"]["result"]["mediapackage"]["start"]
         item.time = timeparser.parse(time, "%Y-%m-%dT%H:%M:%SZ")
-        
-        match = re.search('http.*COMPOSITION.mp4', response.text)
+
+        match = re.search("http.*COMPOSITION.mp4", response.text)
         if match:
             urls = [match.group()]
         else:

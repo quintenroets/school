@@ -1,8 +1,10 @@
-import threading
 import sys
+import threading
+
 from PyQt6 import QtWidgets
 
 cond = threading.Condition()
+
 
 class UserInterface:
     tasks = []
@@ -24,7 +26,7 @@ class UserInterface:
                 downloadprogress = UserInterface.tasks.pop(0)
                 downloadprogress.grant_widget()
                 done += 1
-                with cond: # allow new tasks
+                with cond:  # allow new tasks
                     cond.notifyAll()
 
     @staticmethod

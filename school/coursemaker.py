@@ -1,12 +1,13 @@
-from bs4 import BeautifulSoup
 from json import loads
+
+from bs4 import BeautifulSoup
 
 from libs.parser import Parser
 from libs.shortcutmaker import ShortcutMaker
 
 from . import constants
-from .sessionmanager import SessionManager
 from .path import Path
+from .sessionmanager import SessionManager
 
 
 class CourseMaker:

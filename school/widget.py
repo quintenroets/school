@@ -1,7 +1,8 @@
 from .widgetui import WidgetUI
 
+
 class Widget(WidgetUI):
-    def __init__(self, message=''):
+    def __init__(self, message=""):
         super().__init__(message=message)
         self.onCancel = None
         self.onOpen = None
@@ -14,7 +15,7 @@ class Widget(WidgetUI):
         self.cancel.clicked.connect(self.cancel_clicked)
 
     def keyPressEvent(self, event):
-        if event.key() == 16777220: # Enter key
+        if event.key() == 16777220:  # Enter key
             if self.enable_keyclose:
                 self.close()
 
