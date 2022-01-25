@@ -1,12 +1,22 @@
+from dataclasses import dataclass
+from typing import List
+
 from . import constants
 from .path import Path
 
 
+@dataclass(order=True)
 class Course:
-    def __init__(self, info):
-        self.name = info["name"]
-        self.id = info["id"]
-        self.to_check = ["content/toc"]  # , 'zoom']
+    name: str
+    id: str
+
+    @property
+    def to_check(self):
+        return ["content/toc"]
+
+    @property
+    def sort_index(self):
+        return -Path.content(self.name, self.to_check[0]).size
 
 
 class CourseInfo:
@@ -20,8 +30,5 @@ class CourseInfo:
 
         nr = constants.one_course_nr
         courses = courses[nr - 1 : nr] if nr else courses
-        courses = sorted(
-            courses, key=lambda c: -Path.content(c["name"], "content/toc").size
-        )
-        courses = [Course(c) for c in courses]
-        return courses
+        courses = [Course(**c) for c in courses]
+        return sorted(courses)
