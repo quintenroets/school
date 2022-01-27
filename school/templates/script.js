@@ -4,7 +4,6 @@ var multiple = false;
 var id = 'school-position-' + window.location.href;
 var id_done = id + 'done'
 var position = window.localStorage.getItem(id);
-var rate = 1.0;
 
 const defaultImplementation = function(seconds, guide) {
     seconds = seconds < 0 ? 0 : seconds;
@@ -30,35 +29,21 @@ const defaultImplementation = function(seconds, guide) {
     s = (s < 10) ? '0' + s : s;
     return h + m + s;
 };
+    
 
-let players = [];
+function formatTime(seconds, guide){
+    let rate = window.localStorage.getItem("videospeed") || 1;
+    seconds = seconds / rate;
+    guide = guide / rate;
+    return defaultImplementation(seconds, guide);
+}
 
 
-function setup(video_id){
-    var player = videojs(video_id);
-    if (video_id != "video"){
-        player.muted(true);
-    }
-    
-    players.push(player);
-    
-    document.onkeypress = function (e) {
-        if (e.key == 'a'){
-            rate = rate + 0.1;
-        } else if (e.key == 'z'){
-            rate = rate - 0.1
-        } else if (e.key == 'e'){
-            rate = 2
-        }
-    };
-    
-    function formatTime(seconds, guide){
-        seconds = seconds / rate;
-        guide = guide / rate;
-        return defaultImplementation(seconds, guide);
-    }
-    
-    videojs.setFormatTime(formatTime)
+videojs.setFormatTime(formatTime)
+
+
+function setup(video_el){
+    var player = videojs(video_el);
     
     if (position){
         var old_onload = window.onload;
@@ -69,10 +54,6 @@ function setup(video_id){
             player.currentTime(position);
         }
     }
-    
-    player.on('ratechange', function() {
-        rate = player.playbackRate();
-    });
     
     player.on('loadedmetadata', function() {
         let ratio = player.videoWidth() / player.videoHeight();
@@ -109,29 +90,16 @@ function setup(video_id){
         if (!multiple){
             player.exitFullscreen();
         }
-        //window.close();
     });
+    return player;
 }
-setup("video");
 
-number = 2;
-video_name = "video" + number;
-video = document.getElementById(video_name);
-while(video){
-    multiple = true;
-    setup(video_name);
-    number = number + 1;
-    video_name = "video" + number;
-    video = document.getElementById(video_name);
-}
-    
-window.onmousewheel = function (e) {
-    const up = e.deltaY < 0;
-    if (up){
-        rate = rate + 0.1;
-        }
-    else {
-        rate = rate - 0.1;
+videos = document.getElementsByTagName("video");
+for(var i = 0, max = videos.length; i < max; i++) 
+{
+    let player = setup(videos[i]);
+    if (i>1){
+        player.muted(true);
+        multiple = true;
     }
-    players.forEach(player => player.playbackRate(rate));
-};
+}
