@@ -16,7 +16,9 @@ class DownloadManager:
     def make_section(section: Section):
         if not section.announ:
             section.dest.mkdir(parents=True, exist_ok=True)
-        section.dest.time = section.content.time
+        if isinstance(section.content.time, str):
+            section.content.time = timeparser.parse(section.content.time)
+        section.dest.mtime = section.content.time
         DownloadManager.update_order(section)
 
     @staticmethod
@@ -46,7 +48,7 @@ class DownloadManager:
                         item.dest.unlink()
                         item.dest = item.dest.with_suffix(".pdf")
 
-                    item.dest.time = item.time
+                    item.dest.mtime = item.time
                     if item.order:
                         item.dest.tag = item.order
                 else:

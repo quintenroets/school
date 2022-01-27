@@ -2,7 +2,6 @@ import json
 import re
 import threading
 import urllib
-from datetime import datetime
 
 import m3u8
 import requests
