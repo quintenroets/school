@@ -47,12 +47,12 @@ function setup(video_el){
     
     if (position){
         var old_onload = window.onload;
-        window.onload = function() {
+        /*window.onload = function() {
             if (old_onload){
                 old_onload();
             }
             player.currentTime(position);
-        }
+        }*/
     }
     
     player.on('loadedmetadata', function() {
@@ -73,7 +73,7 @@ function setup(video_el){
         }
     });
 
-    window.onunload = function () {
+    /*window.onunload = function () {
         var checkpoint = player.currentTime();
         if (checkpoint > player.duration() - 10){
             checkpoint = checkpoint;
@@ -83,7 +83,7 @@ function setup(video_el){
             window.localStorage.removeItem(id_done);
         }
             window.localStorage.setItem(id, checkpoint);
-        }
+        }*/
 
     player.on('ended', function() {
         window.localStorage.setItem(id_done, true);
