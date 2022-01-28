@@ -98,7 +98,7 @@ videos = document.getElementsByTagName("video");
 for(var i = 0, max = videos.length; i < max; i++) 
 {
     let player = setup(videos[i]);
-    if (i>1){
+    if (i>0){
         player.muted(true);
         multiple = true;
     }

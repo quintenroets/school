@@ -3,11 +3,9 @@ import time
 from http.cookies import SimpleCookie
 
 from retry import retry
-from selenium.common.exceptions import (
-    ElementNotInteractableException,
-    NoSuchElementException,
-    StaleElementReferenceException,
-)
+from selenium.common.exceptions import (ElementNotInteractableException,
+                                        NoSuchElementException,
+                                        StaleElementReferenceException)
 
 from libs.browser import Browser
 from libs.parser import Parser
