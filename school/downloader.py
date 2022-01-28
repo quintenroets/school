@@ -193,7 +193,7 @@ class Downloader:
                 for i in range(len(urls))
             ]
             self.section.downloadprogress.amount += len(urls) - 1
-            threading.Threads(
+            Threads(
                 self.download_chunked, args=(dests, urls), kwargs=kwargs
             ).start().join()
 
@@ -235,25 +235,23 @@ class Downloader:
             item.html = item.dest.read_text()
             self.download_announ(item)
 
+    def progress_callback(self, value):
+        self.section.downloadprogress.add_progress(0.95 * value)
+
     def download_chunked(self, dest, url, headers=None, **kwargs):
         dest = Path(dest)
         if constants.overwrite_downloads or not dest.exists():
             with Downloader.semaphore:
 
-                def callback(p):
-                    self.section.downloadprogress.add_progress(0.95 * p)
-
                 if url.endswith(".m3u8"):
-                    self.download_m3u8(
-                        dest, url, headers=headers, callback=callback, **kwargs
-                    )
+                    self.download_m3u8(dest, url, headers=headers, **kwargs)
                 else:
                     downloader.download(
                         url,
                         dest,
                         headers=headers,
                         session=SessionManager.session,
-                        progress_callback=callback,
+                        progress_callback=self.progress_callback,
                         **kwargs,
                     )
 
@@ -264,7 +262,9 @@ class Downloader:
 
         from downloader.progress import UIProgress
 
-        progress = UIProgress(dest.name)
+        progress = UIProgress(
+            dest.name, total=len(playlist.segments) * 2 ** 20
+        )  # assume 1 MB per chunk
 
         with progress:
             with dest.open("wb") as fp:
@@ -272,8 +272,10 @@ class Downloader:
                     content = SessionManager.session.get(
                         segment.absolute_uri, headers=headers
                     ).content
-                    if progress.total is None:
-                        progress.update(total=len(content) * len(playlist.segments))
-                    progress.advance(len(content))
+
+                    progress.advance(2 ** 20)
                     fp.write(content)
-                    callback(1 / len(playlist.segments))
+                    self.progress_callback(1 / len(playlist.segments))
+
+        # run: ffmpeg -i input.mp4 -c:v libx264 -c:a aac output.mp4
+        # manually afterward to be able to play it in the browser
