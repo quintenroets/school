@@ -31,9 +31,9 @@ window.onload = function() {
             opened = true;
         } else if (done == "true"){
             links[i].style.color = "#1b59A8";
-            if (opened == true && staticOpen == false){
+            /*if (opened == true && staticOpen == false){
                 toOpen = "";
-            }
+            }*/ // disable for now
         }
     }
     if (toOpen){
