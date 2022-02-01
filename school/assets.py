@@ -16,7 +16,7 @@ class Course:
 
     @property
     def sort_index(self):
-        return -Path.content(self.name, self.to_check[0]).size
+        return -Path.content_path(self.name, self.to_check[0]).size
 
     def dict(self):
         return asdict(self)
@@ -30,8 +30,4 @@ class Courses:
     def from_dict(cls, courses):
         if constants.one_course_nr:
             courses = [courses[constants.one_course_nr]]
-        return Courses(
-            sorted(
-                [Course(**c) for c in courses]
-            )
-        )
+        return Courses(sorted([Course(**c) for c in courses]))

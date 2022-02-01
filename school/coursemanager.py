@@ -14,7 +14,7 @@ class CourseManager:
         self.api = D2LApi(course)
         self.part = part
         self.contentmanager = None
-        self.old_content = Path.content(self.course.name, self.part).read_bytes()
+        self.old_content = Path.content_path(self.course.name, self.part).read_bytes()
         ProgressManager.add(self)
 
     def check(self):
@@ -35,10 +35,14 @@ class CourseManager:
 
     @staticmethod
     def check_notifications():
-        last_announ_seen = Path.content("notifications", "notifications").read_text()
+        last_announ_seen = Path.content_path(
+            "notifications", "notifications"
+        ).read_text()
 
         if not last_announ_seen:
-            last_announ_seen = CourseManager.to_string(datetime.now().replace(year=last_announ_seen.year - 1))
+            last_announ_seen = CourseManager.to_string(
+                datetime.now().replace(year=last_announ_seen.year - 1)
+            )
 
         new_announ_url = (
             "https://ufora.ugent.be/d2l/api/lp/1.30/feed/?since={last_announ_seen}"
@@ -48,7 +52,9 @@ class CourseManager:
         changed = content != b"[]"
 
         if changed:
-            Path.content("notifications", "notifications").text = CourseManager.to_string(datetime.now())
+            Path.content_path(
+                "notifications", "notifications"
+            ).text = CourseManager.to_string(datetime.now())
             last_announ = json.loads(content)[0]["Metadata"]["Date"]
             changed = last_announ_seen < last_announ
 

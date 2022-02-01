@@ -21,13 +21,13 @@ class Progress(ProgressBar):
         self.auto_add()
 
     def add_message(self, message):
-        self.messages.append(message)
+        self.messages.append(self.message)
         self.set_message(message)
 
     def pop_message(self):
-        if len(self.messages) > 1:
-            self.messages.pop()
-        self.set_message(self.messages[-1])
+        if len(self.messages) > 0:
+            message = self.messages.pop()
+            self.set_message(message)
 
     def auto_add(self):
         threading.Thread(target=self._auto_add).start()

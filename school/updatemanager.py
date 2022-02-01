@@ -30,6 +30,6 @@ class UpdateManager:
 
         if constants.update_content:
             c = contentmanager
-            Path.content(c.coursemanager.course.name, c.coursemanager.part).write(
+            Path.content_path(c.coursemanager.course.name, c.coursemanager.part).write(
                 c.content_bytes
             )
