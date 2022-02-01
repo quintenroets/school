@@ -2,7 +2,7 @@ import json
 
 from libs.parser import Parser
 
-from .sessionmanager import SessionManager
+from .session import session
 
 
 class ZoomApi:
@@ -14,8 +14,8 @@ class ZoomApi:
             f"&pluginId=556e197e-e87b-4c27-be5d-53adc7a41826&d2l_body_type=3"
         )
 
-        form = SessionManager.get(form_url).content
-        post_content, _ = SessionManager.post_form(form)
+        form = session.get(form_url).content
+        post_content, _ = session.post_form(form)
 
         if b"errorCode" in post_content:
             content = json.dumps({"result": {"list": []}}).encode()
@@ -39,7 +39,7 @@ class ZoomApi:
                 f"https://applications.zoom.us/api/v1/lti/rich/recording/COURSE?startTime=&endTime=&keyWord=&searchType=1"
                 f'&status=&page=1&total=0&lti_scid={info["scid"]}'
             )
-            r = SessionManager.get(api_url, headers=headers)
+            r = session.get(api_url, headers=headers)
             info["headers"] = r.request.headers
             ZoomApi.tokens[course_id] = info
             content = r.content

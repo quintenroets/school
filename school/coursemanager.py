@@ -3,7 +3,7 @@ from datetime import datetime
 
 from .path import Path
 from .progressmanager import ProgressManager
-from .sessionmanager import D2LApi, SessionManager
+from .session import D2LApi, session
 from .userinterface import UserInterface
 from .zoomapi import ZoomApi
 
@@ -36,25 +36,27 @@ class CourseManager:
     @staticmethod
     def check_notifications():
         last_announ_seen = Path.content("notifications", "notifications").read_text()
+
         if not last_announ_seen:
-            last_announ_seen = datetime.now()
-            last_announ_seen = str(
-                last_announ_seen.replace(year=last_announ_seen.year - 1)
-            )
-            last_announ_seen = last_announ_seen.replace(" ", "T")[:-3] + "Z"
+            last_announ_seen = CourseManager.to_string(datetime.now().replace(year=last_announ_seen.year - 1))
 
-        url_tail = f"?since={last_announ_seen}" if last_announ_seen else ""
-        new_announ_url = "https://ufora.ugent.be/d2l/api/lp/1.30/feed/" + url_tail
+        new_announ_url = (
+            "https://ufora.ugent.be/d2l/api/lp/1.30/feed/?since={last_announ_seen}"
+        )
 
-        content = SessionManager.get(new_announ_url).content
+        content = session.get(new_announ_url).content
         changed = content != b"[]"
 
         if changed:
+            Path.content("notifications", "notifications").text = CourseManager.to_string(datetime.now())
             last_announ = json.loads(content)[0]["Metadata"]["Date"]
-            changed = last_announ_seen != last_announ
-        if changed:
-            Path.content("notification", "notifications").write_text(last_announ)
+            changed = last_announ_seen < last_announ
+
         return changed
+
+    @staticmethod
+    def to_string(time):
+        return str(time).replace(" ", "T")[:-3] + "Z"
 
     def process_changes(self, content, old_content):
         from .contentmanager import ContentManager

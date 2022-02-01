@@ -17,6 +17,37 @@ from .progressmanager import ProgressManager
 
 class LoginManager:
     @staticmethod
+    def login_ufora():
+        ProgressManager.progress.add_message("Logging in")
+        ProgressManager.progress.auto_add_value = 0.0009
+        ProgressManager.progress.auto_max = 1
+        ProgressManager.progress.do_auto_add = True
+        ProgressManager.progress.amount = 1
+
+        cookies = LoginManager.login_to_url(
+            "https://ufora.ugent.be/d2l/lp/auth/saml/login?target=%2fd2l%2fep%2f6606%2fdashboard%2findex"
+        )
+
+        ProgressManager.progress.pop_message()
+        ProgressManager.progress.auto_add_value = 0
+        ProgressManager.progress.auto_progress = 0
+        ProgressManager.progress.set_progress(0)
+        ProgressManager.progress.amount = 0
+
+        return cookies
+
+    @staticmethod
+    def login_zoom():
+        def callback(browser):
+            time.sleep(2)
+            browser.find_element_by_id("onetrust-accept-btn-handler").click()
+            browser.click_link_by_name("Continue")
+            LoginManager.click_and_wait(browser, "yesbutton", "yesbutton")
+
+        login_url = "https://ugent-be.zoom.us/web/sso/login?en=signin"
+        return LoginManager.login_to_url(login_url, callback)
+
+    @staticmethod
     def login_to_url(url, callback=None):
         with Browser(logging=True) as browser:
             browser.get("https://login.ugent.be")

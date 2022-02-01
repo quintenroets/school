@@ -14,7 +14,7 @@ from .contentmanager import Item, Section
 from .downloadmanager import DownloadManager
 from .downloadprogress import DownloadProgress
 from .path import Path
-from .sessionmanager import SessionManager
+from .session import session
 from .zoomapi import ZoomApi
 
 PARALLEL_SECTIONS = 5
@@ -101,7 +101,7 @@ class Downloader:
         )
         if not url.startswith("http"):
             url = constants.root_url + url
-        content = SessionManager.get(url).content
+        content = session.get(url).content
         ugent_urls = [b"https://opencast.ugent.be", b"https://vidlib.ugent.be"]
         url = None
         if b"<form" in content:
@@ -122,8 +122,8 @@ class Downloader:
     def download_zoom(self, item):
         item.dest = item.dest.with_suffix(".mp4")
 
-        SessionManager.login_zoom()
-        zoom_page = SessionManager.session.get(item.Url).text
+        session.login_zoom()
+        zoom_page = session.get(item.Url).text
 
         if "Passcode Required" in zoom_page:
             item.dest = None
@@ -152,10 +152,10 @@ class Downloader:
             .decode()
             .split("/")[-1]
         )
-        SessionManager.post_form(content)  # log in to paella
+        session.post_form(content)  # log in to paella
 
         url = f"{base_url.decode()}/search/episode.json?id=" + video_id
-        response = SessionManager.get(url)
+        response = session.get(url)
         parsed_content = response.json()
 
         time = parsed_content["search-results"]["result"]["mediapackage"]["start"]
@@ -250,7 +250,7 @@ class Downloader:
                         url,
                         dest,
                         headers=headers,
-                        session=SessionManager.session,
+                        session=session,
                         progress_callback=self.progress_callback,
                         **kwargs,
                     )
@@ -269,9 +269,7 @@ class Downloader:
         with progress:
             with dest.open("wb") as fp:
                 for segment in playlist.segments:
-                    content = SessionManager.session.get(
-                        segment.absolute_uri, headers=headers
-                    ).content
+                    content = session.get(segment.absolute_uri, headers=headers).content
 
                     progress.advance(2 ** 20)
                     fp.write(content)

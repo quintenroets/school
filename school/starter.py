@@ -2,8 +2,6 @@ from libs.threading import Threads
 
 from .courseinfo import CourseInfo
 from .coursemanager import CourseManager
-from .progressmanager import ProgressManager
-from .sessionmanager import SessionManager
 from .userinterface import UserInterface
 
 
@@ -16,6 +14,7 @@ class Starter:
         ]
 
         content_threads = Threads([c.check for c in coursemanagers]).start()
+
         if CourseManager.check_notifications():
             extra_coursemanagers = [CourseManager(c, "news/") for c in courses]
             coursemanagers += extra_coursemanagers
