@@ -35,14 +35,11 @@ class CourseManager:
 
     @staticmethod
     def check_notifications():
-        last_announ_seen = Path.content_path(
-            "notifications", "notifications"
-        ).read_text()
+        last_announ_seen = Path.content_path("notifications", "notifications").text
 
         if not last_announ_seen:
-            last_announ_seen = CourseManager.to_string(
-                datetime.now().replace(year=last_announ_seen.year - 1)
-            )
+            now = datetime.now()
+            last_announ_seen = CourseManager.to_string(now.replace(year=now.year - 1))
 
         new_announ_url = (
             "https://ufora.ugent.be/d2l/api/lp/1.30/feed/?since={last_announ_seen}"

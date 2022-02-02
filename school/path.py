@@ -8,11 +8,10 @@ class Path(BasePath):
 
     assets = BasePath.assets / root.name
     courses = assets / "courses" / "courses"
+    content_assets = assets / "content"
 
     school = BasePath.docs / "School"
     content_folder_name = "Content"
-
-    trusted = True
 
     @staticmethod
     def cookies(name="cookies"):
@@ -28,7 +27,7 @@ class Path(BasePath):
 
     @staticmethod
     def content_path(course, sort):
-        return Path.assets.subpath(sort, course).with_suffix(".txt")
+        return Path.content_assets.subpath(sort, course).with_suffix(".txt")
 
     @staticmethod
     def content_folder(path):

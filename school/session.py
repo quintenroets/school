@@ -46,7 +46,7 @@ class Session(requests.Session):
         self.zoom_login_mutex = threading.Lock()
 
     def save_cookies(self):
-        Path.cookies.content = {
+        Path.cookies().content = {
             k: self.cookies.get_dict().get(k)
             for k in ["d2lSecureSessionVal", "d2lSessionVal"]
         }
