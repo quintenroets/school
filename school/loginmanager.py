@@ -3,9 +3,11 @@ import time
 from http.cookies import SimpleCookie
 
 from retry import retry
-from selenium.common.exceptions import (ElementNotInteractableException,
-                                        NoSuchElementException,
-                                        StaleElementReferenceException)
+from selenium.common.exceptions import (
+    ElementNotInteractableException,
+    NoSuchElementException,
+    StaleElementReferenceException,
+)
 
 from libs.browser import Browser
 from libs.parser import Parser
@@ -102,7 +104,7 @@ class LoginManager:
                 return LoginManager.login(browser)
 
             # Select first account
-            if LoginManager.is_present(browser, account_id):
+            if browser.is_present(account_id):
                 try:
                     browser.find_element_by_xpath(account_x_path).click()
                 except NoSuchElementException:
@@ -124,12 +126,12 @@ class LoginManager:
                     pass
 
             # microsoft authenticator
-            if LoginManager.is_present(browser, authenticate_id):
+            if browser.is_present(authenticate_id):
                 ProgressManager.progress.add_message("Awaiting authenticator")
                 authenticated = True
 
-                while LoginManager.is_present(browser, authenticate_id):
-                    if LoginManager.is_present(browser, authenticate_expired_id):
+                while browser.is_present(authenticate_id):
+                    if browser.is_present(authenticate_expired_id):
                         return LoginManager.login(browser)
 
                     time.sleep(2)
@@ -169,18 +171,8 @@ class LoginManager:
         return cookies
 
     @staticmethod
-    def is_present(browser, id):
-        try:
-            browser.find_element_by_id(id)
-        except NoSuchElementException:
-            present = False
-        else:
-            present = True
-        return present
-
-    @staticmethod
     @retry(AssertionError, delay=0.2)
     # used for callbacks
     def click_and_wait(driver, id_click, id_wait):
         driver.find_element_by_id(id_click).click()
-        assert not LoginManager.is_present(driver, id_click)
+        assert not driver.is_present(id_click)
