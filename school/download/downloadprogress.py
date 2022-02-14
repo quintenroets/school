@@ -1,20 +1,21 @@
 import cli
-
-from .widget import Widget
+from school.ui.widget import Widget
 
 
 class DownloadProgress:
     def __init__(self, section):
+        from school.content.contentmanager import SectionInfo
+
         self.finished = False
         self.to_show = False
-        self.section = section
+        self.section: SectionInfo = section
         self.amount = 0
         self.progres_value = 0
 
         self.widget = None
 
     def request_widget(self):
-        from .userinterface import UserInterface
+        from school.ui.userinterface import UserInterface
 
         UserInterface.request_widget(self)
 
@@ -65,12 +66,13 @@ class DownloadProgress:
         self.set_progress()
 
     def make_message(self, section):
-        arrow = u"\u2B9E "
+        arrow = "\u2B9E "
         title = [section.coursemanager.course.name] + [
             i * "   " + arrow + part for i, part in enumerate(section.titles)
         ]
         content = [
-            s.title + " (updated)" if s.updated else s.title for s in section.items
+            it.title if not it.toc_info or not it.updated else it.title + " (updated)"
+            for it in section.items
         ]
         message = "\n".join(title + [""] + content)
         return message
@@ -80,12 +82,11 @@ class DownloadProgress:
 
         urls = [self.section.dest]
         if not self.section.announ:
-            dests = [it.dest for it in self.section.items if it.dest]
+            dests = [it.dest for it in self.section.items]
             if any([d.suffix == ".mp4" for d in dests]):
                 urls.append(self.section.dest / "Videos.html")
             urls += [d for d in dests if d.suffix != ".mp4"]
-
-        cli.urlopen(urls)
+        cli.urlopen(*urls)
 
     def enable_show(self):
         self.set_progress(1)

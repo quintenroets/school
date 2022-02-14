@@ -2,7 +2,9 @@ from datetime import datetime
 
 from bs4 import BeautifulSoup
 
-from .path import Path
+from school.utils.path import Path
+
+from .contentmanager import Item
 
 soup = BeautifulSoup(features="html.parser")
 
@@ -11,8 +13,7 @@ class OutputWriter:
     @staticmethod
     def write_output_to_html(sections):
         content = OutputWriter.make_output(sections)
-        output_file = OutputWriter.get_output_file()
-        output_file.write(content)
+        OutputWriter.get_output_file().text = content
 
     @staticmethod
     def get_output_file():
@@ -58,27 +59,25 @@ class OutputWriter:
         return "".join([OutputWriter.get_item_string(dest, item) for item in content])
 
     @staticmethod
-    def get_dest_string(folder):
-        dest_html = "/".join(folder.parts) if folder else ""
-        dest_href = "file:///" + dest_html
-
+    def get_dest_string(folder: Path):
         tag = OutputWriter.make_tag("a")
         tag.string = "Open"
         tag["target"] = "_blanck"
-        tag["href"] = dest_href
+        tag["href"] = folder.as_uri() if folder else ""
 
         return "<h4>" + str(tag) + "</h4><hr>"
 
     @staticmethod
-    def get_item_string(dest, item):
+    def get_item_string(dest: Path, item: Item):
         attributes = {
             "style": "color: black;",
             "target": "_blanck",
-            "href": item.dest if item.dest and item.dest.exists() else dest,
+            "href": item.dest.as_uri() if item.dest and item.dest.exists() else dest,
         }
 
         tag_item = OutputWriter.make_tag("a")
         tag_item.string = item.title
+
         for k, v in attributes.items():
             tag_item[k] = v
         return str(tag_item) + "<br>"

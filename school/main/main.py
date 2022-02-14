@@ -1,10 +1,9 @@
-from .progressmanager import ProgressManager
+from school.ui.progressmanager import ProgressManager
 
 
 def main():
     with ProgressManager():
-        from .starter import Starter
-
+        from school.utils.starter import Starter
         Starter.check_changes()
 
 

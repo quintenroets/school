@@ -1,6 +1,6 @@
 import cli
 import gui
-from school.path import Path
+from school.utils.path import Path
 
 
 def main():

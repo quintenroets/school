@@ -6,9 +6,7 @@ from libs.progressbar import ProgressBar
 
 class Progress(ProgressBar):
     def __init__(self, message="Checking for new items"):
-        super(Progress, self).__init__(
-            title="School", message=message, show_progress_message=False
-        )
+        super().__init__(title="School", message=message)
         self.messages = [message]
         self.auto_max = 0.0
         self.auto_add_value = 0.001
@@ -17,37 +15,40 @@ class Progress(ProgressBar):
         self.auto_progress = 0
 
     def __enter__(self):
-        super(Progress, self).__enter__()
+        super().__enter__()
         self.auto_add()
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.do_auto_add = False
+        super().__exit__(exc_type, exc_val, exc_tb)
 
     def add_message(self, message):
         self.messages.append(self.message)
-        self.set_message(message)
+        self.message = message
 
     def pop_message(self):
         if len(self.messages) > 0:
             message = self.messages.pop()
-            self.set_message(message)
+            self.message = message
 
     def auto_add(self):
         threading.Thread(target=self._auto_add).start()
 
     def _auto_add(self):
         while self.do_auto_add:
-            self.set_progress(self.progress_value)
             if self.auto_progress < self.auto_max:
                 self.auto_progress += self.auto_add_value
             time.sleep(0.005)
 
-    def show_progress(self, percentage=None):
-        if not percentage:
-            normal_progress = self.progress_value / self.amount if self.amount else 0
-            percentage = 100 * max(normal_progress, self.auto_progress)
+    def add_progress(self, value):
+        self.progress += value
 
-        super(Progress, self).show_progress(percentage)
+    @property
+    def percentage(self):
+        return max(super().percentage, self.auto_progress * 100)
 
     def reset(self):
-        self.progress_value = 0
+        self.progress = 0
 
 
 class ProgressManager:
@@ -60,11 +61,4 @@ class ProgressManager:
 
     @staticmethod
     def __exit__(exc_type, exc_val, exc_tb):
-        ProgressManager.progress.do_auto_add = False
         ProgressManager.progress.__exit__(exc_type, exc_val, exc_tb)
-
-    @staticmethod
-    def add(coursemanager):
-        ProgressManager.progress.amount += (
-            len(coursemanager.old_content) + 10000
-        )  # extra constant delay

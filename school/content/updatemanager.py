@@ -1,17 +1,16 @@
 from libs.threading import Threads
-
-from . import constants
-from .downloader import Downloader
-from .downloadmanager import DownloadManager
-from .path import Path
-from .userinterface import UserInterface
+from school.download.downloader import Downloader
+from school.download.downloadmanager import DownloadManager
+from school.ui.userinterface import UserInterface
+from school.utils import constants
+from school.utils.path import Path
 
 
 class UpdateManager:
     @staticmethod
     def process_updates(contentmanager):
         contentmanager.new_topic_sections = [
-            s for s in contentmanager.sections if s.changed and not s.only_subfolders
+            s for s in contentmanager.sections if s.changed
         ]
         downloaders = [
             Downloader(s).download_section for s in contentmanager.new_topic_sections
@@ -21,10 +20,7 @@ class UpdateManager:
         downloaders = Threads(downloaders).start()
 
         for section in contentmanager.sections:
-            if section.changed and section.only_subfolders:
-                DownloadManager.make_section(section)
-            if not section.changed and section.order_changed:
-                DownloadManager.update_order(section)
+            DownloadManager.make_section(section)
 
         downloaders.join()
 

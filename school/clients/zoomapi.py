@@ -36,7 +36,8 @@ class ZoomApi:
                 "referer": f'https://applications.zoom.us/lti/rich?lti_scid={info["scid"]}&oauth_consumer_key={info["oauthConsumerKey"]}',
             }
             api_url = (
-                f"https://applications.zoom.us/api/v1/lti/rich/recording/COURSE?startTime=&endTime=&keyWord=&searchType=1"
+                f"https://applications.zoom.us/api/v1/lti/rich/recording/COURSE"
+                f"?startTime=&endTime=&keyWord=&searchType=1"
                 f'&status=&page=1&total=0&lti_scid={info["scid"]}'
             )
             r = session.get(api_url, headers=headers)

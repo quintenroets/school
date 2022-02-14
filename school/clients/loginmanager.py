@@ -3,38 +3,37 @@ import time
 from http.cookies import SimpleCookie
 
 from retry import retry
-from selenium.common.exceptions import (
-    ElementNotInteractableException,
-    NoSuchElementException,
-    StaleElementReferenceException,
-)
+from selenium.common.exceptions import (ElementNotInteractableException,
+                                        NoSuchElementException,
+                                        StaleElementReferenceException)
 
 from libs.browser import Browser
 from libs.parser import Parser
-
-from . import constants
-from .path import Path
-from .progressmanager import ProgressManager
+from school.ui.progressmanager import ProgressManager
+from school.utils import constants
+from school.utils.path import Path
 
 
 class LoginManager:
     @staticmethod
     def login_ufora():
-        ProgressManager.progress.add_message("Logging in")
-        ProgressManager.progress.auto_add_value = 0.0009
-        ProgressManager.progress.auto_max = 1
-        ProgressManager.progress.do_auto_add = True
-        ProgressManager.progress.amount = 1
+        progress = ProgressManager.progress
+
+        progress.add_message("Logging in")
+        progress.auto_add_value = 0.0009
+        progress.auto_max = 1
+        progress.do_auto_add = True
+        progress.amount = 1
 
         cookies = LoginManager.login_to_url(
             "https://ufora.ugent.be/d2l/lp/auth/saml/login?target=%2fd2l%2fep%2f6606%2fdashboard%2findex"
         )
 
-        ProgressManager.progress.pop_message()
-        ProgressManager.progress.auto_add_value = 0
-        ProgressManager.progress.auto_progress = 0
-        ProgressManager.progress.set_progress(0)
-        ProgressManager.progress.amount = 0
+        progress.pop_message()
+        progress.auto_add_value = 0
+        progress.auto_progress = 0
+        progress.progress = 0
+        progress.amount = 0
 
         return cookies
 

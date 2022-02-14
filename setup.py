@@ -26,9 +26,9 @@ setup(
     package_data={"school": ["templates/*"]},
     entry_points={
         "console_scripts": [
-            "school = school.main:main",
-            "videomanager = school.videomanager:main",
-            "schoolcontent = school.contentmodifier:main",
+            "school = school.main.main:main",
+            "videomanager = school.download.videomanager:main",
+            "schoolcontent = school.content.contentmodifier:main",
         ]
     },
 )

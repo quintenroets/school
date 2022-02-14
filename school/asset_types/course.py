@@ -1,25 +1,24 @@
-from dataclasses import asdict, dataclass
+from dataclasses import dataclass
 from typing import List
 
-from . import constants
-from .path import Path
+from school.utils import constants
+from school.utils.path import Path
+
+from .base import Item
 
 
 @dataclass(order=True)
-class Course:
+class Course(Item):
     name: str
     id: str
 
     @property
     def to_check(self):
-        return ["content/toc"]
+        return ["content/toc"]  # , "zoom"]
 
     @property
     def sort_index(self):
         return -Path.content_path(self.name, self.to_check[0]).size
-
-    def dict(self):
-        return asdict(self)
 
 
 @dataclass
@@ -29,5 +28,5 @@ class Courses:
     @classmethod
     def from_dict(cls, courses):
         if constants.one_course_nr:
-            courses = [courses[constants.one_course_nr]]
+            courses = [courses[constants.one_course_nr - 1]]
         return Courses(sorted([Course(**c) for c in courses]))

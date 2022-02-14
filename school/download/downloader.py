@@ -1,32 +1,31 @@
-import json
 import re
 import threading
-import urllib
+import urllib.parse
 
 import m3u8
 import requests
 
 import downloader
 from libs.threading import Threads
+from school.clients.session import session
+from school.clients.zoomapi import ZoomApi
+from school.content.contentmanager import Item, SectionInfo
+from school.utils import constants, timeparser
+from school.utils.path import Path
 
-from . import constants, timeparser
-from .contentmanager import Item, Section
 from .downloadmanager import DownloadManager
 from .downloadprogress import DownloadProgress
-from .path import Path
-from .session import session
-from .zoomapi import ZoomApi
 
-PARALLEL_SECTIONS = 5
-PARALLEL_DOWNLOADS = 10
+PARALLEL_SECTIONS = 1  # 5
+PARALLEL_DOWNLOADS = 1  # 10
 
 
 class Downloader:
     section_semaphore = threading.Semaphore(PARALLEL_SECTIONS)
     semaphore = threading.Semaphore(PARALLEL_DOWNLOADS)
 
-    def __init__(self, section: Section):
-        self.section = section
+    def __init__(self, section: SectionInfo):
+        self.section: SectionInfo = section
 
     def download_section(self):
         self.section.downloadprogress = DownloadProgress(self.section)
@@ -36,65 +35,41 @@ class Downloader:
 
     def start_download(self):
         if self.section.announ:
-            self.download_announ()
+            self.download_html(self.section.items[0])
         else:
             self.section.downloadprogress.add_amount(len(self.section.items))
             Threads(self.download_item, args=(self.section.items,)).start().join()
 
         DownloadManager.process_downloads(self.section)
 
-    def download_announ(self, item=None):
-        if item:
-            html = item.html
-        else:
-            content_list = []
-            for it in self.section.coursemanager.contentmanager.content:
-                title = it["Title"]
-                time = timeparser.parse(it["StartDate"])
-                time_string = timeparser.to_string(time)
-                html = it["Body"]["Html"]
-                content_list.append(
-                    f"<h3><strong>{title}</strong><small>&ensp;&ensp;{time_string}</small></h3>{html}"
-                )
-
-            html = "<br><hr>".join(content_list)
-
+    def download_html(self, item: Item):
         style = f'<link href="file:///{Path.templates}/announ.css" rel="stylesheet" />'
 
         url = constants.root_url
-        if item:
-            if hasattr(item, "Url"):
-                url += item.Url
-            elif hasattr(item, "DefaultPath"):
-                url += item.DefaultPath
 
         base = f'<base href="{url}">'
         title = f"<br><h1>{self.section.coursemanager.course.name}</h1><hr>"
 
-        content = base + title + html + style
-        if item:
-            dest = item.dest
-        else:
-            self.section.dest = self.section.dest.with_suffix(".html")
-            dest = self.section.dest
-        Path(dest).write(content)  # encoding="utf-8" if this does not work
+        content = style + base + title + item.html_content
+        dest = item.dest if not self.section.announ else self.section.dest
+        Path(dest).text = content  # encoding="utf-8" if this does not work
 
-    def download_item(self, item):
-        if item.html:
-            self.download_announ(item)
+    def download_item(self, item: Item):
+        if item.html_content is not None:
+            self.download_html(item)
         elif self.section.zoom:
             self.download_zoom_api(item)
-        elif item.TypeIdentifier == "File":
-            self.download_stream(item, constants.root_url + item.Url)
-        elif "zoom" in item.Url:
+        elif item.toc_info and item.toc_info.TypeIdentifier == "File":
+            self.download_stream(item, constants.root_url + item.url)
+        elif "zoom" in item.url:
             self.download_zoom(item)
-        elif "quickLink" in item.Url:
+        elif "quickLink" in item.url:
             self.download_external(item)
         else:
             self.download_as_url(item)
 
     def download_external(self, item):
-        url = item.Url
+        url = item.url
         url = url.replace(
             "http://ictooce.ugent.be/engage/ui/view.html",
             "https://opencast.ugent.be/paella/ui/watch.html",
@@ -114,25 +89,26 @@ class Downloader:
             self.download_as_url(item)
 
     def download_as_url(self, item):
-        url = constants.root_url + item.Url if item.Url.startswith("/") else item.Url
+        url = constants.root_url + item.url if item.url.startswith("/") else item.url
         item.dest = item.dest.with_suffix(".html")
         content = f"<script>window.location.href = '{url}';</script>"
         item.dest.write(content)
 
-    def download_zoom(self, item):
+    def download_zoom(self, item: Item):
         item.dest = item.dest.with_suffix(".mp4")
 
         session.login_zoom()
-        zoom_page = session.get(item.Url).text
+        zoom_page = session.get(item.url).text
 
         if "Passcode Required" in zoom_page:
-            item.dest = None
+            item.title = None
             return
 
         match = re.search("clipStartTime: (.*),", zoom_page)
         if match:
-            mtime = int(match.group(1)[:-3])
-            item.LastModifiedDate = timeparser.parse(mtime)
+            time_str = match.group(1)
+            if len(time_str) > 3:
+                item.mtime = int(time_str[:-3])
 
         content_list = zoom_page.split("'")
         urls = [u for u in content_list if ".mp4" in u]
@@ -197,43 +173,52 @@ class Downloader:
                 self.download_chunked, args=(dests, urls), kwargs=kwargs
             ).start().join()
 
-    def download_zoom_api(self, item):
-
+    def download_zoom_api(self, item: Item):
         info = ZoomApi.tokens[self.section.coursemanager.course.id]
         url = (
             "https://applications.zoom.us/api/v1/lti/rich/recording/file?meetingId="
-            f"{urllib.parse.quote(item.meetingId, safe='')}"
-            "&lti_scid={info['scid']"
+            f"{urllib.parse.quote(item.recording_info.meetingId, safe='')}"
+            f"&lti_scid={info['scid']}"
         )
-        r = requests.get(url, headers=info["headers"])
-        recordings = json.loads(r.content)["result"]["recordingFiles"]
+
+        response = requests.get(url, headers=info["headers"]).json()
+        recordings = response["result"]["recordingFiles"]
         recordings = [r for r in recordings if r["fileType"] == "MP4"]
+
         for r in recordings:
             mtime = r.get("recordingStart")
             r["time"] = timeparser.parse(mtime, "%Y-%m-%d %H:%M:%S")
         recordings = sorted(recordings, key=lambda r: r["time"])
 
-        extra_items = [item.__copy__() for i in range(len(recordings) - 1)]
-        self.section.items += extra_items
-        items = [item] + extra_items
+        if len(recordings) > 1:
 
-        for item, recording in zip(items, recordings):
-            item.Url = recording["playUrl"]
-            item.time = recording["time"]
+            items = []
+            for i, r in enumerate(recordings):
+                new_item = Item(
+                    order=item.order,
+                    mtime=r["time"],
+                    title=item.title + f" - Part {i + 1}",
+                    url=r["playUrl"],
+                )
+                items.append(new_item)
+            self.section.items.remove(item)
+            self.section.items += items
 
-        if len(items) > 1:
-            for i, item in enumerate(items):
-                item.dest += f" - Part {i + 1}"
+        else:
+            r = recordings[0]
+            item.mtime = r["time"]
+            item.url = r["playUrl"]
+            items = [item]
 
         for item in items:
             self.download_zoom(item)
 
-    def download_stream(self, item, url, headers=None, **kwargs):
+    def download_stream(self, item: Item, url, headers=None, **kwargs):
         self.download_chunked(item.dest, url, headers, **kwargs)
 
         if item.dest.suffix == ".html":
-            item.html = item.dest.read_text()
-            self.download_announ(item)
+            item.html_content = item.dest.text
+            self.download_html(item)
 
     def progress_callback(self, value):
         self.section.downloadprogress.add_progress(0.95 * value)

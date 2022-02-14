@@ -8,11 +8,11 @@ from retry import retry
 import cli
 import downloader
 from libs.parser import Parser
+from school.ui.progressmanager import ProgressManager
+from school.utils import constants
+from school.utils.path import Path
 
-from . import constants
 from .loginmanager import LoginManager
-from .path import Path
-from .progressmanager import ProgressManager
 
 
 class D2LApi:

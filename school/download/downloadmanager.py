@@ -2,29 +2,36 @@ import threading
 from zipfile import ZipFile
 
 import cli
+from school.content.contentmanager import Item, SectionInfo
+from school.utils.path import Path
 
-from . import timeparser
-from .contentmanager import Section
-from .path import Path
 from .videomanager import VideoManager
+
+
+def convert_office(item: Item):
+    office_extensions = [".pptx", ".ppt", ".doc"]
+    if item.dest.suffix in office_extensions:
+        cli.run("unoconv -f pdf", item.dest)
+        item.dest.unlink()
+        item.dest = item.dest.with_suffix(".pdf")
 
 
 class DownloadManager:
     mutex = threading.Lock()
 
     @staticmethod
-    def make_section(section: Section):
+    def make_section(section: SectionInfo):
         if not section.announ:
             section.dest.mkdir(parents=True, exist_ok=True)
-        if isinstance(section.content.time, str):
-            section.content.time = timeparser.parse(section.content.time)
-        section.dest.mtime = section.content.time
         DownloadManager.update_order(section)
+        section.dest.mtime = section.mtime
 
     @staticmethod
-    def update_order(section):
-        if section.dest and section.content and section.content.order:
-            section.dest.tag = section.content.order
+    def update_order(section: SectionInfo):
+        if section.dest:
+            if not section.announ:
+                section.dest.mkdir(parents=True, exist_ok=True)
+            section.dest.tag = section.order
 
     @staticmethod
     def process_downloads(section):
@@ -35,50 +42,46 @@ class DownloadManager:
                 DownloadManager.process_content_downloads(section)
 
     @staticmethod
-    def process_content_downloads(section: Section):
+    def process_content_downloads(section: SectionInfo):
         # first set tags for correct order
         for item in section.items:
-            if isinstance(item.time, str):
-                item.time = timeparser.parse(item.time)
             if item.dest:
                 if item.dest.exists():
-                    office_extentions = [".pptx", ".doc"]
-                    if item.dest.suffix in office_extentions:
-                        cli.run("unoconv -f pdf", item.dest)
-                        item.dest.unlink()
-                        item.dest = item.dest.with_suffix(".pdf")
+                    if section.coursemanager.course.name not in (
+                        "Mobile and Broadband Access Networks",
+                        "Information Security",
+                    ):
+                        convert_office(item)
 
-                    item.dest.mtime = item.time
-                    if item.order:
-                        item.dest.tag = item.order
+                    item.dest.mtime = item.mtime
+                    item.dest.tag = item.order
                 else:
                     orig_name = item.dest.stem
                     count = 1
                     item.dest = item.dest.with_stem(f"{orig_name}_view{count}")
                     while item.dest.exists():
-                        item.dest.mtime = item.time
-                        if item.order:
-                            item.dest.tag = item.order
+                        item.dest.mtime = item.mtime
+                        item.dest.tag = item.order
                         count += 1
                         item.dest = item.dest.with_stem(f"{orig_name}_view{count}")
 
                 if item.dest.suffix == ".zip":
-                    item.dest = item.dest.with_suffix("")
-                    DownloadManager.extract_zip(
-                        item.dest.with_suffix(".zip"), item.dest, remove_zip=True
-                    )
+                    new_dest = item.dest.with_suffix("")
+                    DownloadManager.extract_zip(item.dest, new_dest, remove_zip=True)
+                    item.dest = new_dest
 
         VideoManager.process_videos(section.dest)
         DownloadManager.copy_to_parents(section.dest)
 
     @staticmethod
-    def copy_to_parents(folder):
+    def copy_to_parents(folder: Path):
         files_to_copy = DownloadManager.get_files_to_copy(folder)
 
         for parent in DownloadManager.get_parents(folder):
             for file, file_full in files_to_copy:
                 DownloadManager.make_shortcut(file, file_full, parent)
             VideoManager.process_videos(parent)
+            parent.mtime = folder.mtime
 
     @staticmethod
     def get_files_to_copy(folder: Path):

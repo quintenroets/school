@@ -3,8 +3,7 @@ import urllib.parse
 from datetime import datetime
 
 import cli
-
-from .path import Path
+from school.utils.path import Path
 
 
 class VideoManager:

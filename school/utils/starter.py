@@ -1,21 +1,23 @@
 from libs.threading import Threads
+from school.content import courseinfo
+from school.content.coursemanager import CourseManager
+from school.ui.userinterface import UserInterface
 
-from .courseinfo import CourseInfo
-from .coursemanager import CourseManager
-from .userinterface import UserInterface
+from . import notifications
 
 
 class Starter:
     @staticmethod
     def check_changes():
-        courses = CourseInfo.get_courses()
+        courses = courseinfo.get_courses()
         coursemanagers = [
             CourseManager(c, part) for c in courses for part in c.to_check
         ]
 
         content_threads = Threads([c.check for c in coursemanagers]).start()
 
-        if CourseManager.check_notifications():
+        if notifications.check_notifications():
+            print("ja")
             extra_coursemanagers = [CourseManager(c, "news/") for c in courses]
             coursemanagers += extra_coursemanagers
             extra_content_threads = Threads(
@@ -28,12 +30,13 @@ class Starter:
         if len(coursemanagers) > len(content_threads.threads):
             extra_content_threads.join()
 
-        if new_sections := [
+        new_sections = [
             s
             for c in coursemanagers
             if c.contentmanager
             for s in c.contentmanager.new_topic_sections
-        ]:
-            from .outputwriter import OutputWriter
+        ]
+        if new_sections:
+            from school.content.outputwriter import OutputWriter
 
             OutputWriter.write_output_to_html(new_sections)

@@ -1,14 +1,12 @@
 import json
-from dataclasses import asdict
 
 from bs4 import BeautifulSoup
 
 from libs.shortcutmaker import ShortcutMaker
-
-from . import constants
-from .assets import Course
-from .path import Path
-from .session import session
+from school.asset_types.course import Course
+from school.clients.session import session
+from school.utils import constants
+from school.utils.path import Path
 
 
 class CourseMaker:
@@ -31,7 +29,7 @@ class CourseMaker:
         for course in courses:
             (Path.school / course.name).mkdir(parents=True, exist_ok=True)
 
-        courses_dict = [asdict(course) for course in courses]
+        courses_dict = [c.dict() for c in courses]
         if constants.update_content:
             Path.courses.content = courses_dict
 
