@@ -63,7 +63,7 @@ class Downloader:
             self.download_stream(item, constants.root_url + item.url)
         elif "zoom" in item.url:
             self.download_zoom(item)
-        elif "quickLink" in item.url:
+        elif "quickLink" in item.url or "ictooce" in item.url:
             self.download_external(item)
         else:
             self.download_as_url(item)
@@ -76,15 +76,18 @@ class Downloader:
         )
         if not url.startswith("http"):
             url = constants.root_url + url
+
         content = session.get(url).content
         ugent_urls = [b"https://opencast.ugent.be", b"https://vidlib.ugent.be"]
         url = None
         if b"<form" in content:
             for u in ugent_urls:
                 if u in content:
-                    url = u
+                    url = u.decode()
         if url:
             self.download_opencast(item, content, url)
+        elif "ictooce" in item.url and False:
+            self.download_opencast(item, content, item.url)
         else:
             self.download_as_url(item)
 
@@ -116,21 +119,21 @@ class Downloader:
 
         self.download_urls(item, urls, headers=headers)
 
-    def download_opencast(self, item, content, base_url=None):
+    def download_opencast(self, item, content, base_url: str = None):
         item.dest = item.dest.with_suffix(".mp4")
 
         if base_url is None:
             base_url = b"https://opencast.ugent.be"
 
-        video_id = (
-            re.search(b'custom_tool" value="(.*)"', content)
-            .group(1)
-            .decode()
-            .split("/")[-1]
-        )
-        session.post_form(content)  # log in to paella
+        if "ictooce" not in base_url:
+            video_id = (
+                re.search('custom_tool" value="(.*)"', content).group(1).split("/")[-1]
+            )
+            session.post_form(content)  # log in to paella
+        else:
+            video_id = re.search("id=(.*)", item.url).group(1)
 
-        url = f"{base_url.decode()}/search/episode.json?id=" + video_id
+        url = f"{base_url}/search/episode.json?id=" + video_id
         response = session.get(url)
         parsed_content = response.json()
 
