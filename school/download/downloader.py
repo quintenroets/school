@@ -52,7 +52,7 @@ class Downloader:
 
         content = style + base + title + item.html_content
         dest = item.dest if not self.section.announ else self.section.dest
-        Path(dest).text = content  # encoding="utf-8" if this does not work
+        dest.text = content  # encoding="utf-8" if this does not work
 
     def download_item(self, item: Item):
         if item.html_content is not None:

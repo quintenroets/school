@@ -17,7 +17,6 @@ class Starter:
         content_threads = Threads([c.check for c in coursemanagers]).start()
 
         if notifications.check_notifications():
-            print("ja")
             extra_coursemanagers = [CourseManager(c, "news/") for c in courses]
             coursemanagers += extra_coursemanagers
             extra_content_threads = Threads(
