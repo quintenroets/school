@@ -77,13 +77,13 @@ class Downloader:
         if not url.startswith("http"):
             url = constants.root_url + url
 
-        content = session.get(url).content
-        ugent_urls = [b"https://opencast.ugent.be", b"https://vidlib.ugent.be"]
+        content = session.get(url).text
+        ugent_urls = ["https://opencast.ugent.be", "https://vidlib.ugent.be"]
         url = None
-        if b"<form" in content:
+        if "<form" in content:
             for u in ugent_urls:
                 if u in content:
-                    url = u.decode()
+                    url = u
         if url:
             self.download_opencast(item, content, url)
         elif "ictooce" in item.url and False:
@@ -119,11 +119,11 @@ class Downloader:
 
         self.download_urls(item, urls, headers=headers)
 
-    def download_opencast(self, item, content, base_url: str = None):
+    def download_opencast(self, item, content: str, base_url: str = None):
         item.dest = item.dest.with_suffix(".mp4")
 
         if base_url is None:
-            base_url = b"https://opencast.ugent.be"
+            base_url = "https://opencast.ugent.be"
 
         if "ictooce" not in base_url:
             video_id = (

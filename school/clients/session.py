@@ -87,15 +87,15 @@ class Session(requests.Session):
                     Path.cookies("zoom").save(new_cookies)
                     session.cookies.update(new_cookies)
 
-    def post_form(self, form):
-        form = Parser.between(form, b"<form", b"form>")
-        post_url = Parser.between(form, b'action="', b'"').decode()
+    def post_form(self, form: str):
+        form = Parser.between(form, "<form", "form>")
+        post_url = Parser.between(form, 'action="', '"')
 
         data = {}
-        while b"input" in form:
-            form = form[form.find(b"input") + 1 :]
-            name = html.unescape(Parser.between(form, b'name="', b'"').decode())
-            value = html.unescape(Parser.between(form, b'value="', b'"').decode())
+        while "input" in form:
+            form = form[form.find("input") + 1 :]
+            name = html.unescape(Parser.between(form, 'name="', '"'))
+            value = html.unescape(Parser.between(form, 'value="', '"'))
             data[name] = value
 
         return self.post(post_url, data=data).content, post_url
