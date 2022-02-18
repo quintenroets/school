@@ -8,6 +8,7 @@ unoconv
 
 #downloading
 m3u8
+retry
 
 cli @ git+https://github.com/quintenroets/cli
 downloader @ git+https://github.com/quintenroets/downloader

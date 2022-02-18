@@ -8,7 +8,6 @@ from retry import retry
 import cli
 import downloader
 from libs.parser import Parser
-from school.ui.progressmanager import ProgressManager
 from school.utils import constants
 from school.utils.path import Path
 
@@ -23,7 +22,6 @@ class D2LApi:
         return downloader.get(
             self.api_url + path,
             session=session,
-            progress_callback=ProgressManager.progress.add_progress,
             skip_same_size=True,
         )[0]
 

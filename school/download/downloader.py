@@ -16,8 +16,8 @@ from school.utils.path import Path
 from .downloadmanager import DownloadManager
 from .downloadprogress import DownloadProgress
 
-PARALLEL_SECTIONS = 1  # 5
-PARALLEL_DOWNLOADS = 1  # 10
+PARALLEL_SECTIONS = 5
+PARALLEL_DOWNLOADS = 10
 
 
 class Downloader:

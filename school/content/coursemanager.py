@@ -12,19 +12,17 @@ class CourseManager:
         self.part = part
         self.contentmanager = None
         self.old_content = Path.content_path(self.course.name, self.part).read_bytes()
-        ProgressManager.progress.amount += len(self.old_content) + 1000
+        ProgressManager.progress.amount += 1
 
     def check(self):
-        if self.part == "zoom":
-            content = ZoomApi.get_content(self.course.id)
-            ProgressManager.progress.progress += len(self.old_content) + 1000
-            # set as progress when request done
-        else:
-            content = self.api.get(self.part)
-            ProgressManager.progress.progress += 1000
-            # Here progress is accumulated during request
+        content = (
+            ZoomApi.get_content(self.course.id)
+            if self.part == "zoom"
+            else self.api.get(self.part)
+        )
+        ProgressManager.progress.progress += 1
 
-        if content != self.old_content:
+        if content != self.old_content and False:
             self.process_changes(content, self.old_content)
         else:
             UserInterface.add_check(0)
