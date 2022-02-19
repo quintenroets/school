@@ -22,7 +22,7 @@ class CourseManager:
         )
         ProgressManager.progress.progress += 1
 
-        if content != self.old_content and False:
+        if content != self.old_content:
             self.process_changes(content, self.old_content)
         else:
             UserInterface.add_check(0)
