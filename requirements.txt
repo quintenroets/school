@@ -5,6 +5,7 @@ PyQt6~=6.1.0
 selenium~=3.141.0
 # postprocessing
 unoconv
+pytz
 
 #downloading
 m3u8

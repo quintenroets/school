@@ -3,6 +3,7 @@ import threading
 import urllib.parse
 
 import m3u8
+import pytz
 import requests
 
 import downloader
@@ -91,11 +92,11 @@ class Downloader:
         else:
             self.download_as_url(item)
 
-    def download_as_url(self, item):
+    @staticmethod
+    def download_as_url(item):
         url = constants.root_url + item.url if item.url.startswith("/") else item.url
         item.dest = item.dest.with_suffix(".html")
-        content = f"<script>window.location.href = '{url}';</script>"
-        item.dest.write(content)
+        item.dest.text = f"<script>window.location.href = '{url}';</script>"
 
     def download_zoom(self, item: Item):
         item.dest = item.dest.with_suffix(".mp4")
@@ -119,7 +120,7 @@ class Downloader:
 
         self.download_urls(item, urls, headers=headers)
 
-    def download_opencast(self, item, content: str, base_url: str = None):
+    def download_opencast(self, item: Item, content: str, base_url: str = None):
         item.dest = item.dest.with_suffix(".mp4")
 
         if base_url is None:
@@ -138,7 +139,10 @@ class Downloader:
         parsed_content = response.json()
 
         time = parsed_content["search-results"]["result"]["mediapackage"]["start"]
-        item.time = timeparser.parse(time, "%Y-%m-%dT%H:%M:%SZ")
+        item.mtime = (
+            timeparser.parse(time, "%Y-%m-%dT%H:%M:%SZ")
+            + pytz.timezone("CET")._utcoffset.seconds
+        )
 
         match = re.search("http.*COMPOSITION.mp4", response.text)
         if match:
