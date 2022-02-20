@@ -5,8 +5,8 @@ from libs.progressbar import ProgressBar
 
 
 class Progress(ProgressBar):
-    def __init__(self, message="Checking for new items"):
-        super().__init__(title="School", message=message)
+    def __init__(self, message="Checking for new items", silent=False):
+        super().__init__(title="School", message=message, silent=silent)
         self.messages = [message]
         self.auto_max = 0.0
         self.auto_add_value = 0.001
@@ -53,7 +53,7 @@ class Progress(ProgressBar):
 
 
 class ProgressManager:
-    progress = None
+    progress = Progress(silent=True)
 
     @staticmethod
     def __enter__():

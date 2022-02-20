@@ -171,11 +171,7 @@ class SectionInfo(Section):
         self.dest = Path.school.subpath(self.coursemanager.course.name, *self.titles)
         for it in self.items:
             if it.toc_info and it.toc_info.TypeIdentifier == "File":
-                it.title = (
-                    Path(it.title)
-                    .with_suffix("." + it.toc_info.Url.split(".")[-1])
-                    .name
-                )
+                it.title += "." + it.toc_info.Url.split(".")[-1]
             it.dest = self.dest / it.title
 
     @property

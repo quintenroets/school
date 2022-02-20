@@ -29,6 +29,7 @@ setup(
             "school = school.main.main:main",
             "videomanager = school.download.videomanager:main",
             "schoolcontent = school.content.contentmodifier:main",
+            "schoolcheck = school.main.checkservice:main",
         ]
     },
 )
