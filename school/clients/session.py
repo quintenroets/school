@@ -1,6 +1,7 @@
 import html
 import os
 import threading
+import time
 
 import requests
 from retry import retry
@@ -8,6 +9,7 @@ from retry import retry
 import cli
 import downloader
 from libs.parser import Parser
+from school.ui.progressmanager import ProgressManager
 from school.utils import constants
 from school.utils.path import Path
 
@@ -58,8 +60,13 @@ class Session(requests.Session):
         try:
             self._check_login()
         except requests.RequestException:
-            cli.run('kdialog --title School --error "No internet"')
-            os._exit(0)
+            if ProgressManager.progress:
+                # only show when running in interactive mode
+                cli.run('kdialog --title School --error "No internet"')
+                os._exit(0)
+            else:
+                time.sleep(2 * 60 ** 2)
+                check_login()
 
     def _check_login(self):
         check_url = "https://ufora.ugent.be/d2l/api/lp/1.30/users/whoami"
