@@ -105,7 +105,7 @@ class DownloadManager:
     def get_parents(folder: Path):
         content_folder = Path.content_folder(folder)
         parents = [content_folder] if content_folder.exists() else []
-        while (folder := folder.parent) != Path.school:
+        while (folder := folder.parent) != Path.school.parent:
             parent_content = Path.content_folder(folder)
             parents.append(parent_content)
             parent_content.mkdir(parents=True, exist_ok=True)
