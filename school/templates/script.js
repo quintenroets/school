@@ -71,6 +71,7 @@ function setup(video_el){
                 player.requestFullscreen();
             }
         }
+        window.localStorage.setItem(id_done, false);
     });
 
     /*window.onunload = function () {
