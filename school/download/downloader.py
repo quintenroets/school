@@ -62,12 +62,23 @@ class Downloader:
             self.download_zoom_api(item)
         elif item.toc_info and item.toc_info.TypeIdentifier == "File":
             self.download_stream(item, constants.root_url + item.url)
+        elif item.toc_info and item.toc_info.TypeIdentifier == "ContentService":
+            self.download_content_service(item)
         elif "zoom" in item.url:
             self.download_zoom(item)
         elif "quickLink" in item.url or "ictooce" in item.url:
             self.download_external(item)
         else:
             self.download_as_url(item)
+
+    def download_content_service(self, item: Item):
+        url = (
+            f"{constants.root_url}d2l/le/content/contentservice/resources/"
+            f"{self.section.coursemanager.course.id}/topics/{item.toc_info.TopicId}/download?format=1"
+        )
+        item.dest = item.dest.with_suffix(".mp4")
+        download_url = session.get(url).json()["Value"]
+        self.download_stream(item, download_url)
 
     def download_external(self, item):
         url = item.url
