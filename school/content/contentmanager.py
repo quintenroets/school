@@ -102,7 +102,7 @@ def extract_tree_differences(content: ContentTree, old_content: ContentTree):
 
         if isinstance(module, Module):
             html = module.Description.Html
-            if html:
+            if html and module.mtime != module_old.mtime:
                 item = Item(
                     order=9, mtime=module.mtime, title="Info.html", html_content=html
                 )
@@ -139,15 +139,14 @@ def extract_tree_differences(content: ContentTree, old_content: ContentTree):
 
 
 def extract_differences(content, content_old):
-    if isinstance(content, ContentTree):
-        extractor = extract_tree_differences
-    elif isinstance(content, News):
-        extractor = extract_news_differences
-    else:
-        extractor = extract_recording_differences
-
-    differences = extractor(content, content_old)
-    return differences
+    extractors = {
+        ContentTree: extract_tree_differences,
+        News: extract_news_differences,
+        Recordings: extract_recording_differences,
+    }
+    for asset_type, extractor in extractors.items():
+        if isinstance(content, asset_type):
+            return extractor(content, content_old)
 
 
 class ContentType(Enum):
@@ -203,6 +202,7 @@ class ContentManager:
         self.content_old = cls.from_bytes(content_old)
 
         sections = extract_differences(self.content, self.content_old)
+
         self.sections: List[SectionInfo] = [
             SectionInfo(s, coursemanager) for s in sections
         ]
