@@ -1,8 +1,10 @@
 import time
 
-from selenium.common.exceptions import (ElementNotInteractableException,
-                                        NoSuchElementException,
-                                        StaleElementReferenceException)
+from selenium.common.exceptions import (
+    ElementNotInteractableException,
+    NoSuchElementException,
+    StaleElementReferenceException,
+)
 
 from school.ui.progressmanager import ProgressManager
 from school.utils import constants
@@ -51,7 +53,6 @@ class LoginManager:
             browser.get("https://login.ugent.be")
             browser.set_login_cookies()
             LoginManager.login(browser)
-            print("klaar")
 
             if url.startswith("/"):
                 url = "https://login.ugent.be" + url
