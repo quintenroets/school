@@ -8,17 +8,38 @@ import requests
 
 import downloader
 from libs.threading import Threads
-from school.clients.session import session
+from school.asset_types.news import NewsItem
+from school.clients import session
 from school.clients.zoomapi import ZoomApi
 from school.content.contentmanager import Item, SectionInfo
-from school.utils import constants, timeparser
-from school.utils.path import Path
+from school.utils import Path, constants, timeparser
 
 from .downloadmanager import DownloadManager
 from .downloadprogress import DownloadProgress
 
 PARALLEL_SECTIONS = 5
 PARALLEL_DOWNLOADS = 10
+
+
+def export_html(item: Item):
+    from school.content.outputwriter import OutputWriter
+
+    html_list = []
+    for it in item.html_content:
+        html = (
+            f"<h2><strong>{it.Title}</strong><small>&ensp;&ensp;"
+            f"{timeparser.to_string(timeparser.parse(it.StartDate))}"
+            f"</small></h2>{it.Body.Html}"
+        )
+        for attachment in it.Attachments:
+            html += OutputWriter.get_dest_string(
+                item.dest.parent.parent / "Attachments" / attachment.FileName,
+                title=attachment.FileName,
+            )
+
+        html_list.append(html)
+
+    return "<br><hr>".join(html_list)
 
 
 class Downloader:
@@ -36,14 +57,35 @@ class Downloader:
 
     def start_download(self):
         if self.section.announ:
-            self.download_html(self.section.items[0])
+            self.download_html()
         else:
             self.section.downloadprogress.add_amount(len(self.section.items))
             Threads(self.download_item, args=(self.section.items,)).start().join()
 
         DownloadManager.process_downloads(self.section)
 
-    def download_html(self, item: Item):
+    def download_attachments(self, item: NewsItem):
+        for it in item.Attachments:
+            dest = self.section.dest.parent / "Attachments" / it.FileName
+            url = (
+                f"https://ufora.ugent.be/d2l/le/news/widget/{self.section.coursemanager.course.id}"
+                f"/FileProvider?newsId={item.Id}&fileId={it.FileId}"
+            )
+            self.download_chunked(dest, url)
+            dest.mtime = item.mtime
+            dest.tag = item.order
+
+    def download_html(self, item: Item = None):
+        if not item:
+            for new_announ in self.section.items:
+                self.download_attachments(new_announ.announ_info)
+
+        if item is None:
+            item = self.section.items[0]
+            html = export_html(item)
+        else:
+            html = item.html_content
+
         style = f'<link href="file:///{Path.templates}/announ.css" rel="stylesheet" />'
 
         url = constants.root_url
@@ -51,7 +93,7 @@ class Downloader:
         base = f'<base href="{url}">'
         title = f"<br><h1>{self.section.coursemanager.course.name}</h1><hr>"
 
-        content = style + base + title + item.html_content
+        content = style + base + title + html
         dest = item.dest if not self.section.announ else self.section.dest
         dest.text = content  # encoding="utf-8" if this does not work
 

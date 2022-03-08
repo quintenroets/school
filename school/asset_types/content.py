@@ -1,8 +1,9 @@
 from dataclasses import dataclass
-from typing import List
+from typing import List, Union
 
 from school.utils.path import Path
 
+from .news import NewsItem
 from .ufora import Topic
 from .zoom import Recording
 
@@ -18,7 +19,8 @@ class Item(Info):
     title: str
     recording_info: Recording = None
     toc_info: Topic = None
-    html_content: str = None
+    announ_info: NewsItem = None
+    html_content: Union[str, List[NewsItem]] = None
     updated: bool = False
     order_changed: bool = False
     url: str = None

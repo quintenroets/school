@@ -59,9 +59,9 @@ class OutputWriter:
         return "".join([OutputWriter.get_item_string(dest, item) for item in content])
 
     @staticmethod
-    def get_dest_string(folder: Path):
+    def get_dest_string(folder: Path, title: str = "Open"):
         tag = OutputWriter.make_tag("a")
-        tag.string = "Open"
+        tag.string = title
         tag["target"] = "_blanck"
         tag["href"] = folder.as_uri() if folder else ""
 

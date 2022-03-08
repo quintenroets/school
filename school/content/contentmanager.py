@@ -2,7 +2,7 @@ from enum import Enum
 from typing import List
 
 from school.asset_types.content import Item, Section
-from school.asset_types.news import News
+from school.asset_types.news import News, NewsItem
 from school.asset_types.ufora import ContentTree, Module, Topic
 from school.asset_types.zoom import Recordings
 from school.utils import timeparser
@@ -40,20 +40,11 @@ def extract_news_differences(content: News, old_content: News):
     items = []
     for it in content.items:
         if it.Id not in old_items or old_items[it.Id].mtime != it.mtime:
-            item = Item(order=9999, mtime=it.mtime, title=it.Title)
+            item = Item(order=9999, mtime=it.mtime, title=it.Title, announ_info=it)
             items.append(item)
 
     if items:
-        html = "<br><hr>".join(
-            (
-                f"<h3><strong>{it.Title}</strong><small>&ensp;&ensp;"
-                f"{timeparser.to_string(timeparser.parse(it.StartDate))}"
-                f"</small></h3>{it.Body.Html}"
-            )
-            for it in content.items
-        )
-        for it in items:
-            it.html_content = html
+        items[0].html_content = content.items
 
     sections = (
         [

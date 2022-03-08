@@ -1,7 +1,7 @@
-from plib import Path as BasePath2
+import plib
 
 
-class BasePath(BasePath2):
+class BasePath(plib.Path):
     def subpath(self, *parts):
         new_parts = []
         for p in parts:

@@ -11,9 +11,16 @@ class Body:
 
 
 @dataclass
+class Attachment:
+    FileId: int
+    FileName: str
+    Size: int
+
+
+@dataclass
 class NewsItem(UforaItem):
     Id: int
-    Attachments: List[str]
+    Attachments: List[Attachment]
     CreatedBy: int
     CreatedDate: str
     LastModifiedBy: Optional[int]
