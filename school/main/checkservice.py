@@ -1,6 +1,7 @@
 import time
 
-from school.utils.starter import Starter
+from ..clients import session
+from ..utils.starter import Starter
 
 
 def main():
@@ -8,6 +9,7 @@ def main():
     seconds = hours * 60 ** 2
     while True:
         time.sleep(seconds)
+        session.check_login()
         Starter.check_changes()
 
 
