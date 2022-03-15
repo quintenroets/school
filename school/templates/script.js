@@ -47,12 +47,6 @@ function setup(video_el){
     
     if (position){
         var old_onload = window.onload;
-        /*window.onload = function() {
-            if (old_onload){
-                old_onload();
-            }
-            player.currentTime(position);
-        }*/
     }
     
     player.on('loadedmetadata', function() {
