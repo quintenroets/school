@@ -93,10 +93,8 @@ def extract_tree_differences(content: ContentTree, old_content: ContentTree):
 
         if isinstance(module, Module):
             html = module.Description.Html
-            if (
-                html
-                and isinstance(module_old, ContentTree)
-                or module.mtime != module_old.mtime
+            if html and (
+                isinstance(module_old, ContentTree) or module.mtime != module_old.mtime
             ):
                 item = Item(
                     order=9, mtime=module.mtime, title="Info.html", html_content=html
