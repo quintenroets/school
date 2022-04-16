@@ -36,6 +36,6 @@ class Starter:
             for s in c.contentmanager.new_topic_sections
         ]
         if new_sections:
-            from school.content.outputwriter import OutputWriter
+            from school.content import outputwriter
 
-            OutputWriter.write_output_to_html(new_sections)
+            outputwriter.write_output_to_html(new_sections)

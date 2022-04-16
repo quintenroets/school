@@ -17,7 +17,7 @@ root = BasePath(__file__).parent.parent
 class Path(BasePath):
     templates = root / "templates"
 
-    assets = BasePath.assets / root.name
+    assets: BasePath = BasePath.assets / root.name
     courses = assets / "courses" / "courses"
     content_assets = assets / "content"
 

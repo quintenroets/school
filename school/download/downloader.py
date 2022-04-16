@@ -22,7 +22,7 @@ PARALLEL_DOWNLOADS = 10
 
 
 def export_html(item: Item):
-    from school.content.outputwriter import OutputWriter
+    from school.content import outputwriter
 
     html_list = []
     for it in item.html_content:
@@ -32,7 +32,7 @@ def export_html(item: Item):
             f"</small></h2>{it.Body.Html}"
         )
         for attachment in it.Attachments:
-            html += OutputWriter.get_dest_string(
+            html += outputwriter.get_dest_string(
                 item.dest.parent.parent / "Attachments" / attachment.FileName,
                 title=attachment.FileName,
             )
