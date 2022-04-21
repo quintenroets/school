@@ -44,7 +44,7 @@ def get_content_string(dest, content):
 
 
 def get_dest_string(folder: Path, title: str = "Open"):
-    tag = OutputWriter.make_tag("a")
+    tag = make_tag("a")
     tag.string = title
     tag["target"] = "_blanck"
     tag["href"] = folder.as_uri() if folder else ""
@@ -59,7 +59,7 @@ def get_item_string(dest: Path, item: Item):
         "href": item.dest.as_uri() if item.dest and item.dest.exists() else dest,
     }
 
-    tag_item = OutputWriter.make_tag("a")
+    tag_item = make_tag("a")
     tag_item.string = item.title
 
     for k, v in attributes.items():
