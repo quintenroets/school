@@ -3,12 +3,12 @@ import os
 import threading
 import time
 
-import requests
-from retry import retry
-
 import cli
 import downloader
+import requests
 from libs.parser import Parser
+from retry import retry
+
 from school.ui.progressmanager import ProgressManager
 from school.utils import constants
 from school.utils.path import Path
@@ -65,7 +65,7 @@ class Session(requests.Session):
                 cli.run('kdialog --title School --error "No internet"')
                 os._exit(0)
             else:
-                time.sleep(2 * 60 ** 2)
+                time.sleep(2 * 60**2)
                 check_login()
 
     def _check_login(self):

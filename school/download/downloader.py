@@ -2,12 +2,12 @@ import re
 import threading
 import urllib.parse
 
+import downloader
 import m3u8
 import pytz
 import requests
-
-import downloader
 from libs.threading import Threads
+
 from school.asset_types.news import NewsItem
 from school.clients import session
 from school.clients.zoomapi import ZoomApi
@@ -22,7 +22,7 @@ PARALLEL_DOWNLOADS = 10
 
 
 def export_html(item: Item):
-    from school.content import outputwriter
+    from school.content import outputwriter  # noqa: autoimport
 
     html_list = []
     for it in item.html_content:
@@ -308,7 +308,7 @@ class Downloader:
         from downloader.progress import UIProgress
 
         progress = UIProgress(
-            dest.name, total=len(playlist.segments) * 2 ** 20
+            dest.name, total=len(playlist.segments) * 2**20
         )  # assume 1 MB per chunk
 
         with progress:
@@ -316,7 +316,7 @@ class Downloader:
                 for segment in playlist.segments:
                     content = session.get(segment.absolute_uri, headers=headers).content
 
-                    progress.advance(2 ** 20)
+                    progress.advance(2**20)
                     fp.write(content)
                     self.progress_callback(1 / len(playlist.segments))
 

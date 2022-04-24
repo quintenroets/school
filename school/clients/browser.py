@@ -1,10 +1,10 @@
 import json
 from http.cookies import SimpleCookie
 
-from retry import retry
-
 from libs.browser import Browser as BaseBrowser
 from libs.parser import Parser
+from retry import retry
+
 from school.utils.path import Path
 
 

@@ -1,8 +1,8 @@
 import json
 
 from bs4 import BeautifulSoup
-
 from libs.shortcutmaker import ShortcutMaker
+
 from school.asset_types.course import Course
 from school.clients.session import session
 from school.utils import constants

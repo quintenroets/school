@@ -2,7 +2,7 @@ from enum import Enum
 from typing import List
 
 from school.asset_types.content import Item, Section
-from school.asset_types.news import News, NewsItem
+from school.asset_types.news import News
 from school.asset_types.ufora import ContentTree, Module, Topic
 from school.asset_types.zoom import Recordings
 from school.utils import timeparser

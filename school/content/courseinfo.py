@@ -3,9 +3,10 @@ from school.utils.path import Path
 
 
 def get_courses():
+    from .coursemaker import CourseMaker  # noqa: autoimport
+
     courses = Path.courses.load()
     if not courses:
-        from .coursemaker import CourseMaker
 
         courses = CourseMaker.make_courses()
 

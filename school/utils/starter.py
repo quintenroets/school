@@ -1,4 +1,5 @@
 from libs.threading import Threads
+
 from school.content import courseinfo
 from school.content.coursemanager import CourseManager
 from school.ui.userinterface import UserInterface
@@ -36,6 +37,6 @@ class Starter:
             for s in c.contentmanager.new_topic_sections
         ]
         if new_sections:
-            from school.content import outputwriter
+            from school.content import outputwriter  # noqa: autoimport
 
             outputwriter.write_output_to_html(new_sections)

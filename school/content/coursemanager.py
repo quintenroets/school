@@ -28,8 +28,8 @@ class CourseManager:
             UserInterface.add_check(0)
 
     def process_changes(self, content, old_content):
-        from .contentmanager import ContentManager
-        from .updatemanager import UpdateManager
+        from .contentmanager import ContentManager  # noqa: autoimport
+        from .updatemanager import UpdateManager  # noqa: autoimport
 
         self.contentmanager = ContentManager(content, old_content, self.part, self)
         UpdateManager.process_updates(self.contentmanager)

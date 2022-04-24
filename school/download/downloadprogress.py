@@ -1,21 +1,27 @@
+from __future__ import annotations
+
+from dataclasses import dataclass
+from typing import TYPE_CHECKING, Any
+
 import cli
+
 from school.ui.widget import Widget
 
+if TYPE_CHECKING:
+    from school.content.contentmanager import SectionInfo
 
+
+@dataclass
 class DownloadProgress:
-    def __init__(self, section):
-        from school.content.contentmanager import SectionInfo
-
-        self.finished = False
-        self.to_show = False
-        self.section: SectionInfo = section
-        self.amount = 0
-        self.progres_value = 0
-
-        self.widget = None
+    section: SectionInfo
+    finished: bool = False
+    to_show: bool = False
+    amount: int = 0
+    progres_value: int = None
+    widget: Any = None
 
     def request_widget(self):
-        from school.ui.userinterface import UserInterface
+        from school.ui.userinterface import UserInterface  # noqa: autoimport
 
         UserInterface.request_widget(self)
 

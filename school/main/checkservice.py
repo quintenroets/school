@@ -6,7 +6,7 @@ from ..utils.starter import Starter
 
 def main():
     hours = 2
-    seconds = hours * 60 ** 2
+    seconds = hours * 60**2
     while True:
         time.sleep(seconds)
         session.check_login()
