@@ -1,7 +1,6 @@
 import html
 import os
 import threading
-import time
 
 import cli
 import downloader
@@ -13,7 +12,7 @@ from school.ui.progressmanager import ProgressManager
 from school.utils import constants
 from school.utils.path import Path
 
-from .loginmanager import LoginManager
+from . import loginmanager
 
 
 class D2LApi:
@@ -51,28 +50,31 @@ class Session(requests.Session):
             for k in ["d2lSecureSessionVal", "d2lSessionVal"]
         }
 
-    @retry(requests.exceptions.RequestException, tries=3)
+    @retry(requests.RequestException, tries=3)
     def request(self, method, url, **kwargs):
         kwargs.setdefault("timeout", 10)
         return super().request(method, url, **kwargs)
 
+    @retry(requests.RequestException, delay=2 * 60**2)
     def check_login(self):
         try:
             self._check_login()
-        except requests.RequestException:
-            if ProgressManager.progress:
-                # only show when running in interactive mode
-                cli.run('kdialog --title School --error "No internet"')
-                os._exit(0)
+        except requests.RequestException as e:
+            if ProgressManager.interactive_mode:
+                self.show_error()
             else:
-                time.sleep(2 * 60**2)
-                check_login()
+                raise e
+
+    @classmethod
+    def show_error(cls):
+        cli.run('kdialog --title School --error "No internet"')
+        os._exit(0)
 
     def _check_login(self):
         check_url = "https://ufora.ugent.be/d2l/api/lp/1.30/users/whoami"
         logged_in = self.get(check_url, timeout=2).status_code == 200
         if not logged_in:
-            cookies = LoginManager.login_ufora()
+            cookies = loginmanager.login_ufora()
 
             self.cookies.update(cookies)
             self.save_cookies()
@@ -88,7 +90,7 @@ class Session(requests.Session):
                 )
 
                 if not logged_in:
-                    new_cookies = LoginManager.login_zoom()
+                    new_cookies = loginmanager.login_zoom()
                     Path.cookies("zoom").save(new_cookies)
                     session.cookies.update(new_cookies)
 

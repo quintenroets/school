@@ -1,6 +1,7 @@
 import threading
 import time
 
+from libs.popup import SilentUIHandle
 from libs.progressbar import ProgressBar
 
 
@@ -55,11 +56,16 @@ class Progress(ProgressBar):
 class ProgressManager:
     progress = Progress(silent=True)
 
-    @staticmethod
-    def __enter__():
+    @classmethod
+    def __enter__(cls):
         ProgressManager.progress = Progress()
         ProgressManager.progress.__enter__()
 
-    @staticmethod
-    def __exit__(exc_type, exc_val, exc_tb):
+    @classmethod
+    def __exit__(cls, exc_type, exc_val, exc_tb):
         ProgressManager.progress.__exit__(exc_type, exc_val, exc_tb)
+
+    @classmethod
+    @property
+    def interactive_mode(cls):
+        return not isinstance(cls.progress.handle, SilentUIHandle)
