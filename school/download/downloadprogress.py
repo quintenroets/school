@@ -17,7 +17,7 @@ class DownloadProgress:
     finished: bool = False
     to_show: bool = False
     amount: int = 0
-    progres_value: int = None
+    progress_value: int = 0
     widget: Any = None
 
     def request_widget(self):
@@ -56,15 +56,16 @@ class DownloadProgress:
             self.request_widget()
 
         if self.amount and not progress:
-            progress = self.progres_value / self.amount
+            progress = self.progress_value / self.amount
         if progress and self.widget:
-            self.widget.progress.setValue(progress * 100)
+            value = int(progress * 100)
+            self.widget.progress.setValue(value)
             if progress == 1:
                 self.widget.closeButton.setDisabled(False)
                 self.widget.enable_keyclose = True
 
     def add_progress(self, progress):
-        self.progres_value += progress
+        self.progress_value += progress
         self.set_progress()
 
     def add_amount(self, amount):
