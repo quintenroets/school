@@ -9,8 +9,8 @@ from school.utils.path import Path
 
 
 class Browser(BaseBrowser):
-    def __init__(self):
-        super().__init__(headless=True, logging=True)
+    def __init__(self, headless=True, logging=True):
+        super().__init__(headless=headless, logging=logging)
 
     def set_login_cookies(self):
         domain = self.domain
