@@ -1,8 +1,8 @@
 import threading
 import time
 
-from libs.popup import SilentUIHandle
-from libs.progressbar import ProgressBar
+from .popup import SilentUIHandle
+from .progressbar import ProgressBar
 
 
 class Progress(ProgressBar):
@@ -42,7 +42,6 @@ class Progress(ProgressBar):
             time.sleep(0.005)
 
     def add_progress(self, value):
-        print(value)
         self.progress += value
 
     @property
