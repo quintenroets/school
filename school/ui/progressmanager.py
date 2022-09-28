@@ -1,8 +1,8 @@
 import threading
 import time
 
-from .popup import SilentUIHandle
-from .progressbar import ProgressBar
+from libs.popup import SilentUIHandle
+from libs.progressbar import ProgressBar
 
 
 class Progress(ProgressBar):
