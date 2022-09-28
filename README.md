@@ -3,6 +3,9 @@ Automatically download all your course materials and keep track of your progress
 
 For students at Ghent University or other Ufora users
 
+Project no longer supported as the developer no longer has an active account to test the behavior. New developers are always welcome.
+Otherwise, feel free to fork from this project or reuse the code to solve your problems.
+
 ## Installation
 
 ```shell
