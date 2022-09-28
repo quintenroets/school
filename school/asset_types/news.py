@@ -21,8 +21,8 @@ class Attachment:
 class NewsItem(UforaItem):
     Id: int
     Attachments: List[Attachment]
-    CreatedBy: int
-    CreatedDate: str
+    CreatedBy: int | None
+    CreatedDate: str | None
     LastModifiedBy: Optional[int]
     Body: Body
     StartDate: str

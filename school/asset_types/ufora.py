@@ -66,7 +66,7 @@ class Module(TreeItem):
 class Topic(TreeItem):
     IsExempt: bool
     IsBroken: bool
-    ActivityId: str
+    ActivityId: str | None
     CompletionType: int
     TopicId: int
     Identifier: str
