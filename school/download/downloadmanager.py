@@ -1,5 +1,4 @@
 import threading
-from zipfile import ZipFile
 
 import cli
 from school.content.contentmanager import Item, SectionInfo
@@ -124,18 +123,5 @@ class DownloadManager:
 
     @staticmethod
     def extract_all_zips(source: Path, dest: Path):
-        if source.exists():
-            for path in source.iterdir():
-                if path.suffix == ".zip":
-                    DownloadManager.extract_zip(path, dest)
-
-    @staticmethod
-    def extract_zip(zipfile: Path, folder: Path, remove_zip=True):
-        folder.mkdir(parents=True, exist_ok=True)
-        with ZipFile(zipfile) as zip_ref:
-            zip_ref.extractall(path=folder)
-
-        for path in folder.iterdir():
-            path.tag = zipfile.tag
-        if remove_zip:
-            zipfile.unlink()
+        for path in source.iterdir():
+            path.check_zip()
