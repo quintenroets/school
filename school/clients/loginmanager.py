@@ -45,7 +45,7 @@ def login_zoom():
     return login_to_url(login_url, callback)
 
 
-def login_to_url(url: str, callback: Callable=None) -> Dict:
+def login_to_url(url: str, callback: Callable = None) -> Dict:
     with Browser() as browser:
         browser.get(login_root)
         browser.set_login_cookies()
